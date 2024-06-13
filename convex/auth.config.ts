@@ -1,4 +1,4 @@
-export default {
+const authProvider = {
 	providers: [
 		{
 			domain: 'https://your-issuer-url.clerk.accounts.dev/',
@@ -6,3 +6,5 @@ export default {
 		},
 	],
 };
+
+export default authProvider;
