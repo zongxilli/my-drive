@@ -1,7 +1,7 @@
 const authProvider = {
 	providers: [
 		{
-			domain: 'https://your-issuer-url.clerk.accounts.dev/',
+			domain: 'https://proven-woodcock-61.clerk.accounts.dev',
 			applicationID: 'convex',
 		},
 	],
