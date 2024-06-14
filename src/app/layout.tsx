@@ -4,7 +4,7 @@ import './globals.css';
 import ConvexClientProvider from './ConvexClientProvider';
 import Header from './header';
 
-const font = Baloo_Thambi_2({ subsets: ['latin'] });
+const font = Baloo_Thambi_2({ weight: ['500'], subsets: ['latin'] });
 
 export const metadata: Metadata = {
 	title: 'Create Next App',
