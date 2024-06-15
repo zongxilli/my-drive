@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { Baloo_Thambi_2 } from 'next/font/google';
+import { Toaster } from '@/components/ui/toaster';
 
 import './globals.css';
 import ConvexClientProvider from './ConvexClientProvider';
@@ -21,6 +22,8 @@ export default function RootLayout({
 		<html lang='en'>
 			<body className={font.className}>
 				<ConvexClientProvider>
+					<Toaster />
+
 					<Header />
 					{children}
 				</ConvexClientProvider>
