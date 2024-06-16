@@ -1,9 +1,12 @@
 import { ReactNode, useState } from 'react';
 import {
+	Download,
 	EllipsisVerticalIcon,
+	ExternalLink,
 	GanttChartIcon,
 	ImageIcon,
 	TextIcon,
+	Trash,
 	TrashIcon,
 } from 'lucide-react';
 import { useMutation } from 'convex/react';
@@ -13,6 +16,7 @@ import { CiImageOn } from 'react-icons/ci';
 import { LuText } from 'react-icons/lu';
 import { IoImages } from 'react-icons/io5';
 import { PiFilePdfLight, PiFileCsvLight } from 'react-icons/pi';
+import { IoMdOpen, IoMdDownload, IoMdTrash } from 'react-icons/io';
 
 import {
 	Card,
@@ -48,20 +52,6 @@ import { Doc, Id } from '../../../../convex/_generated/dataModel';
 import { api } from '../../../../convex/_generated/api';
 import Image from 'next/image';
 
-const getFileUrl = (fileId: Id<'_storage'>): string => {
-	const url = `${process.env.NEXT_PUBLIC_CONVEX_URL}/api/storage/${fileId}`;
-	console.log(url);
-	console.log(
-		'https://sleek-bulldog-114.convex.cloud/api/storage/4f65aa52-2c6a-4713-9aa1-d3d5ea87ad2a'
-	);
-	console.log(
-		url ===
-			'https://sleek-bulldog-114.convex.cloud/api/storage/4f65aa52-2c6a-4713-9aa1-d3d5ea87ad2a'
-	);
-
-	return url;
-};
-
 type FileCardProps = {
 	file: Doc<'files'>;
 };
@@ -74,7 +64,7 @@ const FileCard = ({ file }: FileCardProps) => {
 	const [showDeleteFileModal, setShowDeleteFileModal] = useState(false);
 
 	const fileIcons = {
-		image: <IoImages className='h-5 w-5 flex-shrink-0 text-blue-800' />,
+		image: <IoImages className='h-5 w-5 flex-shrink-0 text-blue-600' />,
 		pdf: <MdPictureAsPdf className=' h-5 w-5 flex-shrink-0 text-red-600' />,
 		csv: <LuText className=' h-5 w-5 flex-shrink-0 text-gray-600' />,
 	} as Record<Doc<'files'>['type'], ReactNode>;
@@ -87,10 +77,17 @@ const FileCard = ({ file }: FileCardProps) => {
 				</DropdownMenuTrigger>
 				<DropdownMenuContent>
 					<DropdownMenuItem
-						className='flex items-center gap-1 text-red-600 cursor-pointer'
+						className='flex items-center gap-2 cursor-pointer'
+						onClick={() => window.open(file.url, '_blank')}
+					>
+						<ExternalLink className='w-4 h-4' />
+						Open
+					</DropdownMenuItem>
+					<DropdownMenuItem
+						className='flex items-center gap-2 text-red-600 cursor-pointer'
 						onClick={() => setShowDeleteFileModal(true)}
 					>
-						<TrashIcon className='w-4 h-4' />
+						<Trash className='w-4 h-4' />
 						Delete
 					</DropdownMenuItem>
 				</DropdownMenuContent>
@@ -165,15 +162,7 @@ const FileCard = ({ file }: FileCardProps) => {
 						<PiFileCsvLight className='w-20 h-20' />
 					)}
 				</div>
-				<CardFooter className='py-2 px-2'>
-					<Button
-						onClick={() => {
-							window.open(file.url, '_blank');
-						}}
-					>
-						Download
-					</Button>
-				</CardFooter>
+				<CardFooter className='py-2 px-2'></CardFooter>
 			</Card>
 		);
 	};
