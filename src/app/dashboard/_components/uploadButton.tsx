@@ -29,6 +29,7 @@ import {
 	FormLabel,
 	FormMessage,
 } from '@/components/ui/form';
+import { fileTypes } from '../../../../convex/schema';
 
 const formSchema = z.object({
 	title: z.string().min(1).max(200),
@@ -67,19 +68,21 @@ const UploadButton = () => {
 
 		const postUrl = await generateUploadUrl();
 
+		const fileType = values.file[0]!.type;
+
 		const result = await fetch(postUrl, {
 			method: 'POST',
-			headers: { 'Content-Type': values.file[0]!.type },
+			headers: { 'Content-Type': fileType },
 			body: values.file[0],
 		});
-
 		const { storageId } = await result.json();
 
 		try {
 			await createFile({
 				name: values.title,
 				fileId: storageId,
-				orgId,
+				type: fileTypes[fileType],
+				orgId: orgId,
 			});
 
 			form.reset();
