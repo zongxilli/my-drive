@@ -1,3 +1,5 @@
+'use client';
+
 import { ReactNode, useState } from 'react';
 import {
 	Download,
@@ -5,6 +7,7 @@ import {
 	ExternalLink,
 	GanttChartIcon,
 	ImageIcon,
+	Star,
 	TextIcon,
 	Trash,
 	TrashIcon,
@@ -60,6 +63,7 @@ const FileCard = ({ file }: FileCardProps) => {
 	const { toast } = useToast();
 
 	const deleteFile = useMutation(api.files.deleteFile);
+	const toggleStar = useMutation(api.files.toggleStar);
 
 	const [showDeleteFileModal, setShowDeleteFileModal] = useState(false);
 
@@ -83,6 +87,14 @@ const FileCard = ({ file }: FileCardProps) => {
 						<ExternalLink className='w-4 h-4' />
 						Open
 					</DropdownMenuItem>
+					<DropdownMenuItem
+						className='flex items-center gap-2 cursor-pointer'
+						onClick={() => toggleStar({ fileId: file._id })}
+					>
+						<Star className='w-4 h-4' />
+						Star
+					</DropdownMenuItem>
+					<DropdownMenuSeparator />
 					<DropdownMenuItem
 						className='flex items-center gap-2 text-red-600 cursor-pointer'
 						onClick={() => setShowDeleteFileModal(true)}

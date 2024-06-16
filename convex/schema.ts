@@ -24,6 +24,12 @@ export default defineSchema({
 		url: v.string(),
 	}).index('by_orgId', ['orgId']),
 
+	starredFiles: defineTable({
+		fileId: v.id('files'),
+		orgId: v.string(),
+		userId: v.id('users'),
+	}).index('by_userId_orgId_fileId', ['userId', 'orgId', 'fileId']),
+
 	users: defineTable({
 		tokenIdentifier: v.string(),
 		orgIds: v.array(v.string()),
