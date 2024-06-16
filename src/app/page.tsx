@@ -8,13 +8,15 @@ import { api } from '../../convex/_generated/api';
 import UploadButton from './dashboard/_components/uploadButton';
 import FileCard from './dashboard/_components/fileCard';
 import Image from 'next/image';
-import { Loader2 } from 'lucide-react';
+import { HomeIcon, LaptopMinimal, Loader2, Star, Trash } from 'lucide-react';
 
 import emptyPlaceholder from '../../public/emptyPlaceholder.svg';
 import emptySearchResultPlaceholder from '../../public/emptySearchResultPlaceholder.svg';
 import SearchBar from './dashboard/_components/searchBar';
-import { useCallback, useMemo, useState } from 'react';
+import { ReactNode, useCallback, useMemo, useState } from 'react';
 import useDebouncedState from '@/hooks/useDebounceState';
+import { Button } from '@/components/ui/button';
+import Link from 'next/link';
 
 export default function Home() {
 	const organization = useOrganization();
@@ -90,7 +92,7 @@ export default function Home() {
 		}
 
 		return (
-			<div className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6'>
+			<div className='grid grid-cols-card-auto-fill-minmax gap-6'>
 				{filteredFiles.map((file, idx) => (
 					<FileCard key={idx} file={file} />
 				))}
@@ -98,18 +100,70 @@ export default function Home() {
 		);
 	};
 
-	return (
-		<main className='container mx-auto pt-12'>
-			<div className='flex justify-between items-center mb-8'>
-				<h1 className='text-4xl font-bold'>Your files</h1>
-				<SearchBar
-					searchQuery={searchQuery}
-					setSearchQuery={setSearchQuery}
-				/>
-				<UploadButton />
-			</div>
+	const renderContent = () => {
+		return (
+			<div className='flex-grow h-[92dvh] mr-2 rounded-2xl overflow-hidden bg-google-white shadow-sm'>
+				<div className='w-full h-full p-4 box-border overflow-auto custom-scrollbar'>
+					<div className='flex justify-center items-center mb-8'>
+						{/* <h1 className='text-4xl font-bold'>Your files</h1> */}
+						<SearchBar
+							searchQuery={searchQuery}
+							setSearchQuery={setSearchQuery}
+						/>
+					</div>
 
-			{renderFiles()}
+					{renderFiles()}
+				</div>
+			</div>
+		);
+	};
+
+	const renderSidebar = () => {
+		const renderSidebarButton = (
+			link: string,
+			label: string,
+			icon: ReactNode
+		) => {
+			return (
+				<Link href={link}>
+					<div className='w-full h-[2.5rem] py-2 px-4 box-border flex items-center gap-2 rounded-full hover:bg-google-blue'>
+						{icon}
+						{label}
+					</div>
+				</Link>
+			);
+		};
+
+		return (
+			<div className='w-[17rem] h-full px-4 box-border flex flex-col gap-4'>
+				<UploadButton />
+				<div className='flex flex-col'>
+					{renderSidebarButton(
+						'/dashboard/files',
+						'All files',
+						<LaptopMinimal className='h-4 w-4' />
+					)}
+					{renderSidebarButton(
+						'/dashboard/starred',
+						'Starred',
+						<Star className='h-4 w-4' />
+					)}
+					{renderSidebarButton(
+						'/dashboard/trash',
+						'Trash',
+						<Trash className='h-4 w-4' />
+					)}
+				</div>
+			</div>
+		);
+	};
+
+	return (
+		<main className='mx-auto bg-google-lightBlue'>
+			<div className='w-full h-[93dvh] flex'>
+				{renderSidebar()}
+				{renderContent()}
+			</div>
 		</main>
 	);
 }

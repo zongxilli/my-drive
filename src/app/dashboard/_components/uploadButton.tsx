@@ -6,7 +6,7 @@ import { useMutation } from 'convex/react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Plus } from 'lucide-react';
 
 import { api } from '../../../../convex/_generated/api';
 
@@ -111,7 +111,13 @@ const UploadButton = () => {
 			}}
 		>
 			<DialogTrigger asChild>
-				<Button>Upload file</Button>
+				<Button
+					variant='outline'
+					className='h-[3.5rem] w-[6.25rem] rounded-2xl flex items-center gap-3 shadow'
+				>
+					<Plus />
+					<div className='text-base'>New</div>
+				</Button>
 			</DialogTrigger>
 			<DialogContent>
 				<DialogHeader>

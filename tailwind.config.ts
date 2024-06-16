@@ -56,6 +56,10 @@ const config = {
 					DEFAULT: 'hsl(var(--card))',
 					foreground: 'hsl(var(--card-foreground))',
 				},
+
+				'google-lightBlue': 'hsl(216,55.56%,98.24%)',
+				'google-white': 'hsl(0,0%,100%)',
+				'google-blue': 'hsl(203.61,100%,88.04%)',
 			},
 			borderRadius: {
 				lg: 'var(--radius)',
@@ -75,6 +79,11 @@ const config = {
 			animation: {
 				'accordion-down': 'accordion-down 0.2s ease-out',
 				'accordion-up': 'accordion-up 0.2s ease-out',
+			},
+
+			gridTemplateColumns: {
+				'card-auto-fill-minmax':
+					'repeat(auto-fill, minmax(15rem, 1fr))',
 			},
 		},
 	},

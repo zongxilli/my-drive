@@ -135,7 +135,7 @@ const FileCard = ({ file }: FileCardProps) => {
 
 	const renderFileCard = () => {
 		return (
-			<Card className='h-72'>
+			<Card className='h-[15.625rem] rounded-xl bg-google-sidebar'>
 				<CardHeader className='p-4'>
 					<div className='w-full flex items-center gap-2'>
 						{fileIcons[file.type]}
