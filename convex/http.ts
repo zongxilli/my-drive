@@ -26,6 +26,7 @@ http.route({
 				case 'user.created':
 					await ctx.runMutation(internal.users.createUser, {
 						tokenIdentifier: `https://proven-woodcock-61.clerk.accounts.dev|${result.data.id}`,
+						identifier: result.data.id,
 						// name: `${result.data.first_name ?? ''} ${
 						// 	result.data.last_name ?? ''
 						// }`,

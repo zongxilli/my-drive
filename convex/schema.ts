@@ -24,6 +24,7 @@ export default defineSchema({
 		fileId: v.id('_storage'),
 		orgId: v.string(),
 		url: v.string(),
+		createByIdentifier: v.string(),
 	}).index('by_orgId', ['orgId']),
 
 	starredFiles: defineTable({
@@ -34,6 +35,7 @@ export default defineSchema({
 
 	users: defineTable({
 		tokenIdentifier: v.string(),
+		identifier: v.string(),
 		orgIds: v.array(
 			v.object({
 				orgId: v.string(),

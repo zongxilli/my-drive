@@ -21,10 +21,11 @@ export const getUser = async (
 };
 
 export const createUser = internalMutation({
-	args: { tokenIdentifier: v.string() },
+	args: { tokenIdentifier: v.string(), identifier: v.string() },
 	handler: async (ctx, args) => {
 		await ctx.db.insert('users', {
 			tokenIdentifier: args.tokenIdentifier,
+			identifier: args.identifier,
 			orgIds: [],
 		});
 	},

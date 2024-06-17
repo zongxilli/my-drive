@@ -49,7 +49,6 @@ import {
 	AlertDialogTitle,
 	AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
-import { Button } from '@/components/ui/button';
 import { useToast } from '@/components/ui/use-toast';
 
 import { Doc, Id } from '../../../../convex/_generated/dataModel';
@@ -57,6 +56,7 @@ import { api } from '../../../../convex/_generated/api';
 import Image from 'next/image';
 import { FileWithStarred } from '../../../../convex/files';
 import useAdminPermission from '@/hooks/useAdminPermission';
+import { useUser } from '@clerk/nextjs';
 
 type FileCardProps = {
 	file: FileWithStarred;
@@ -66,7 +66,9 @@ type FileCardProps = {
 
 const FileCard = ({ file }: FileCardProps) => {
 	const { toast } = useToast();
+	const { user } = useUser();
 	const hasAdminPermission = useAdminPermission();
+	const isFileCreatedByCurrentUser = user?.id === file.createByIdentifier;
 
 	const deleteFile = useMutation(api.files.deleteFile);
 	const toggleStar = useMutation(api.files.toggleStar);
@@ -110,7 +112,9 @@ const FileCard = ({ file }: FileCardProps) => {
 					<DropdownMenuItem
 						className='flex items-center gap-2 text-red-600 cursor-pointer'
 						onClick={() => setShowDeleteFileModal(true)}
-						disabled={!hasAdminPermission}
+						disabled={
+							!hasAdminPermission && !isFileCreatedByCurrentUser
+						}
 					>
 						<Trash className='w-4 h-4' />
 						Delete

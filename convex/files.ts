@@ -95,6 +95,7 @@ export const createFile = mutation({
 				'you do not have access to this organization'
 			);
 		}
+		const { user } = hasAccess;
 
 		const url = await ctx.storage.getUrl(args.fileId);
 
@@ -108,6 +109,7 @@ export const createFile = mutation({
 			fileId: args.fileId,
 			orgId: args.orgId,
 			url: url,
+			createByIdentifier: user.identifier,
 		});
 	},
 });
@@ -184,10 +186,10 @@ export const deleteFile = mutation({
 		const isAdmin =
 			user.orgIds.find((item) => item.orgId === file.orgId)?.role ===
 			'admin';
+		const isFileCreatedByCurrentUser =
+			file.createByIdentifier === user.identifier;
 
-		// TODO: add check to check if this file is created by this user
-
-		if (!isAdmin) {
+		if (!isAdmin && !isFileCreatedByCurrentUser) {
 			throw new ConvexError(
 				'you do not have permission to delete this file'
 			);
