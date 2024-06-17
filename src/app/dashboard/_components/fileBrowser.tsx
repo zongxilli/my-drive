@@ -8,6 +8,7 @@ import { HomeIcon, LaptopMinimal, Loader2, Star, Trash } from 'lucide-react';
 
 import emptyPlaceholder from '../../../../public/emptyPlaceholder.svg';
 import emptySearchResultPlaceholder from '../../../../public/emptySearchResultPlaceholder.svg';
+import emptyStarredPlaceholder from '../../../../public/emptyStarredPlaceholder.svg';
 import { ReactNode, useCallback, useMemo, useState } from 'react';
 import useDebouncedState from '@/hooks/useDebounceState';
 import { Button } from '@/components/ui/button';
@@ -22,6 +23,8 @@ export default function FileBrowser() {
 	const user = useUser();
 	const pathname = usePathname();
 
+	const isStarredPage = pathname === '/dashboard/starred';
+
 	const [searchQuery, setSearchQuery] = useState('');
 	const debouncedSearchQuery = useDebouncedState(searchQuery);
 
@@ -32,7 +35,6 @@ export default function FileBrowser() {
 
 	const files = useQuery(api.files.getFiles, {
 		orgId: orgId ?? 'skip',
-		starred: pathname === '/dashboard/starred',
 	});
 
 	const filterFunction = useCallback(
@@ -49,8 +51,15 @@ export default function FileBrowser() {
 
 	const filteredFiles = useMemo(() => {
 		if (!files) return [];
-		return files.filter((file) => filterFunction(file.name));
-	}, [files, filterFunction]);
+
+		const filtered = files.filter((file) => filterFunction(file.name));
+
+		if (isStarredPage) {
+			return filtered.filter((file) => file.isStarred);
+		}
+
+		return filtered;
+	}, [files, filterFunction, isStarredPage]);
 
 	const renderFiles = () => {
 		if (files === undefined) {
@@ -73,6 +82,21 @@ export default function FileBrowser() {
 						src={emptySearchResultPlaceholder}
 					/>
 					No results found for {searchQuery}
+				</div>
+			);
+		}
+
+		if (isStarredPage && filteredFiles.length === 0) {
+			return (
+				<div className='h-[70dvh] flex flex-col items-center justify-center gap-8'>
+					<Image
+						priority
+						alt='empty search result placeholder'
+						width={300}
+						height={300}
+						src={emptyStarredPlaceholder}
+					/>
+					You do not have any starred files
 				</div>
 			);
 		}

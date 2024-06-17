@@ -8,6 +8,7 @@ import {
 	GanttChartIcon,
 	ImageIcon,
 	Star,
+	StarOff,
 	TextIcon,
 	Trash,
 	TrashIcon,
@@ -54,9 +55,10 @@ import { useToast } from '@/components/ui/use-toast';
 import { Doc, Id } from '../../../../convex/_generated/dataModel';
 import { api } from '../../../../convex/_generated/api';
 import Image from 'next/image';
+import { FileWithStarred } from '../../../../convex/files';
 
 type FileCardProps = {
-	file: Doc<'files'>;
+	file: FileWithStarred;
 };
 
 const FileCard = ({ file }: FileCardProps) => {
@@ -91,8 +93,14 @@ const FileCard = ({ file }: FileCardProps) => {
 						className='flex items-center gap-2 cursor-pointer'
 						onClick={() => toggleStar({ fileId: file._id })}
 					>
-						<Star className='w-4 h-4' />
-						Star
+						{file.isStarred ? (
+							<StarOff className='w-4 h-4' />
+						) : (
+							<Star className='w-4 h-4' />
+						)}
+						{file.isStarred
+							? 'Remove from starred'
+							: 'Add to starred'}
 					</DropdownMenuItem>
 					<DropdownMenuSeparator />
 					<DropdownMenuItem
@@ -147,7 +155,7 @@ const FileCard = ({ file }: FileCardProps) => {
 
 	const renderFileCard = () => {
 		return (
-			<Card className='h-[15.625rem] rounded-xl bg-google-sidebar'>
+			<Card className='h-[15.625rem] rounded-xl bg-google-lightBlue'>
 				<CardHeader className='p-4'>
 					<div className='w-full flex items-center gap-2'>
 						{fileIcons[file.type]}
@@ -174,7 +182,9 @@ const FileCard = ({ file }: FileCardProps) => {
 						<PiFileCsvLight className='w-20 h-20' />
 					)}
 				</div>
-				<CardFooter className='py-2 px-2'></CardFooter>
+				<CardFooter className='py-2 px-2'>
+					{file.isStarred ? 'starred' : 'not starred'}
+				</CardFooter>
 			</Card>
 		);
 	};
