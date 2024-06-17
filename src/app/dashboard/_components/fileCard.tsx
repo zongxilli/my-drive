@@ -1,6 +1,6 @@
 'use client';
 
-import { ReactNode, useState } from 'react';
+import { ReactNode, useEffect, useState } from 'react';
 import {
 	Download,
 	EllipsisVerticalIcon,
@@ -56,13 +56,17 @@ import { Doc, Id } from '../../../../convex/_generated/dataModel';
 import { api } from '../../../../convex/_generated/api';
 import Image from 'next/image';
 import { FileWithStarred } from '../../../../convex/files';
+import useAdminPermission from '@/hooks/useAdminPermission';
 
 type FileCardProps = {
 	file: FileWithStarred;
 };
 
+// TODO: add 'createdBy` to file and let user to be able to delete the file if user is the creator
+
 const FileCard = ({ file }: FileCardProps) => {
 	const { toast } = useToast();
+	const hasAdminPermission = useAdminPermission();
 
 	const deleteFile = useMutation(api.files.deleteFile);
 	const toggleStar = useMutation(api.files.toggleStar);
@@ -106,6 +110,7 @@ const FileCard = ({ file }: FileCardProps) => {
 					<DropdownMenuItem
 						className='flex items-center gap-2 text-red-600 cursor-pointer'
 						onClick={() => setShowDeleteFileModal(true)}
+						disabled={!hasAdminPermission}
 					>
 						<Trash className='w-4 h-4' />
 						Delete
@@ -182,9 +187,7 @@ const FileCard = ({ file }: FileCardProps) => {
 						<PiFileCsvLight className='w-20 h-20' />
 					)}
 				</div>
-				<CardFooter className='py-2 px-2'>
-					{file.isStarred ? 'starred' : 'not starred'}
-				</CardFooter>
+				<CardFooter className='py-2 px-2'></CardFooter>
 			</Card>
 		);
 	};
