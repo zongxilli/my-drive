@@ -22,9 +22,9 @@ export default defineSchema({
 		name: v.string(),
 		type: schemaFileTypes,
 		fileId: v.id('_storage'),
+		userId: v.id('users'),
 		orgId: v.string(),
 		url: v.string(),
-		createByIdentifier: v.string(),
 		movedToTrash: v.boolean(),
 	})
 		.index('by_orgId', ['orgId'])

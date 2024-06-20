@@ -12,7 +12,7 @@ import Link from 'next/link';
 
 const Header = () => {
 	return (
-		<div className='h-[7dvh] w-full px-6 flex justify-between items-center bg-google-lightBlue'>
+		<div className='h-[7dvh] w-full px-6 flex justify-between items-center bg-google-extraLightBlue'>
 			<Link href='/dashboard/files'>
 				<div className='flex items-center gap-2 cursor-pointer'>
 					<FaGoogleDrive className='w-6 h-6 text-gray-300' />

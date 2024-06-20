@@ -52,7 +52,7 @@ const SearchBar = ({ searchQuery, setSearchQuery }: SearchBarProps) => {
 								<Input
 									{...field}
 									placeholder='Search in Drive'
-									className='pl-10 rounded-full'
+									className='pl-10 rounded-full bg-google-lightBlue focus:bg-white'
 								/>
 							</FormControl>
 							{/* <FormMessage /> */}

@@ -117,7 +117,6 @@ export const createFile = mutation({
 		// 			fileId: args.fileId,
 		// 			orgId: args.orgId,
 		// 			url: url,
-		// 			createByIdentifier: user.identifier,
 		// 			movedToTrash: false,
 		// 		});
 		// 	})
@@ -128,8 +127,8 @@ export const createFile = mutation({
 			type: args.type,
 			fileId: args.fileId,
 			orgId: args.orgId,
+			userId: user._id,
 			url: url,
-			createByIdentifier: user.identifier,
 			movedToTrash: false,
 		});
 	},
@@ -207,10 +206,10 @@ export const moveFileToTrash = mutation({
 		const isAdmin =
 			user.orgIds.find((item) => item.orgId === file.orgId)?.role ===
 			'admin';
-		const isFileCreatedByCurrentUser =
-			file.createByIdentifier === user.identifier;
 
-		if (!isAdmin && !isFileCreatedByCurrentUser) {
+		// TODO: check if isFileCreatedByCurrentUser
+		// TODO: if is not, its not allowed to delete this file
+		if (!isAdmin) {
 			throw new ConvexError(
 				'you do not have permission to move this file'
 			);
@@ -238,10 +237,10 @@ export const restoreFile = mutation({
 		const isAdmin =
 			user.orgIds.find((item) => item.orgId === file.orgId)?.role ===
 			'admin';
-		const isFileCreatedByCurrentUser =
-			file.createByIdentifier === user.identifier;
 
-		if (!isAdmin && !isFileCreatedByCurrentUser) {
+		// TODO: check if isFileCreatedByCurrentUser
+		// TODO: if is not, its not allowed to delete this file
+		if (!isAdmin) {
 			throw new ConvexError(
 				'you do not have permission to restore this file'
 			);
@@ -269,10 +268,10 @@ export const deleteFile = mutation({
 		const isAdmin =
 			user.orgIds.find((item) => item.orgId === file.orgId)?.role ===
 			'admin';
-		const isFileCreatedByCurrentUser =
-			file.createByIdentifier === user.identifier;
 
-		if (!isAdmin && !isFileCreatedByCurrentUser) {
+		// TODO: check if isFileCreatedByCurrentUser
+		// TODO: if is not, its not allowed to delete this file
+		if (!isAdmin) {
 			throw new ConvexError(
 				'you do not have permission to delete this file'
 			);

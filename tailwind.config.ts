@@ -57,7 +57,8 @@ const config = {
 					foreground: 'hsl(var(--card-foreground))',
 				},
 
-				'google-lightBlue': 'hsl(216,55.56%,98.24%)',
+				'google-extraLightBlue': 'hsl(216,55.56%,98.24%)',
+				'google-lightBlue': 'hsl(216.92,41.94%,93.92%)',
 				'google-white': 'hsl(0,0%,100%)',
 				'google-blue': 'hsl(203.61,100%,88.04%)',
 			},

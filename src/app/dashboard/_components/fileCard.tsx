@@ -15,7 +15,7 @@ import {
 	Trash2,
 	TrashIcon,
 } from 'lucide-react';
-import { useMutation } from 'convex/react';
+import { useMutation, useQuery } from 'convex/react';
 import { FaFilePdf, FaFileCsv, FaImage, FaRegImages } from 'react-icons/fa6';
 import { MdPictureAsPdf } from 'react-icons/md';
 import { CiImageOn } from 'react-icons/ci';
@@ -23,6 +23,7 @@ import { LuText } from 'react-icons/lu';
 import { IoImages } from 'react-icons/io5';
 import { PiFilePdfLight, PiFileCsvLight } from 'react-icons/pi';
 import { IoMdOpen, IoMdDownload, IoMdTrash } from 'react-icons/io';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
 import {
 	Card,
@@ -60,6 +61,7 @@ import { FileWithStarred } from '../../../../convex/files';
 import useAdminPermission from '@/hooks/useAdminPermission';
 import { useUser } from '@clerk/nextjs';
 import clsx from 'clsx';
+import { formatUtils } from '@/utils/format';
 
 type FileCardProps = {
 	file: FileWithStarred;
@@ -69,21 +71,22 @@ type FileCardProps = {
 
 const FileCard = ({ file }: FileCardProps) => {
 	const { toast } = useToast();
-	const { user } = useUser();
 	const hasAdminPermission = useAdminPermission();
-	const isFileCreatedByCurrentUser = user?.id === file.createByIdentifier;
 
 	const deleteFile = useMutation(api.files.deleteFile);
 	const restoreFile = useMutation(api.files.restoreFile);
 	const moveFileToTrash = useMutation(api.files.moveFileToTrash);
 	const toggleStar = useMutation(api.files.toggleStar);
+	const userProfile = useQuery(api.users.getUserProfile, {
+		userId: file.userId,
+	});
 
 	const [showDeleteFileModal, setShowDeleteFileModal] = useState(false);
 
 	const fileIcons = {
-		image: <IoImages className='h-5 w-5 flex-shrink-0 text-blue-600' />,
-		pdf: <MdPictureAsPdf className=' h-5 w-5 flex-shrink-0 text-red-600' />,
-		csv: <LuText className=' h-5 w-5 flex-shrink-0 text-gray-600' />,
+		image: <IoImages className='h-4 w-4 flex-shrink-0 text-blue-600' />,
+		pdf: <MdPictureAsPdf className=' h-4 w-4 flex-shrink-0 text-red-600' />,
+		csv: <LuText className=' h-4 w-4 flex-shrink-0 text-gray-600' />,
 	} as Record<Doc<'files'>['type'], ReactNode>;
 
 	const handleMoveToTrash = async () => {
@@ -225,7 +228,7 @@ const FileCard = ({ file }: FileCardProps) => {
 				<CardHeader className='p-4'>
 					<div className='w-full flex items-center gap-2'>
 						{fileIcons[file.type]}
-						<div className='flex-grow text-ellipsis whitespace-nowrap overflow-hidden min-w-0 text-xl'>
+						<div className='flex-grow text-ellipsis whitespace-nowrap overflow-hidden min-w-0 text-base cursor-default'>
 							{file.name}
 						</div>
 						{renderDropdownMenu()}
@@ -248,7 +251,17 @@ const FileCard = ({ file }: FileCardProps) => {
 						<PiFileCsvLight className='w-20 h-20' />
 					)}
 				</div>
-				<CardFooter className='py-2 px-2'></CardFooter>
+				<CardFooter className='py-3 px-3 flex items-center justify-start gap-4'>
+					<Avatar className='w-5 h-5'>
+						<AvatarImage src={userProfile?.image} />
+						<AvatarFallback>user image</AvatarFallback>
+					</Avatar>
+					<div className='text-sm text-gray-500 flex items-center gap-2 cursor-default'>
+						<div>{userProfile?.name}</div>
+						<div>&middot;</div>
+						<div>{formatUtils.formatDate(file._creationTime)}</div>
+					</div>
+				</CardFooter>
 			</Card>
 		);
 	};

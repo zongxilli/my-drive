@@ -9,7 +9,7 @@ export default function DashboardLayout({
 	children: ReactNode;
 }>) {
 	return (
-		<main className='mx-auto bg-google-lightBlue'>
+		<main className='mx-auto bg-google-extraLightBlue'>
 			<div className='w-full h-[93dvh] flex'>
 				<Drawer />
 				{children}
