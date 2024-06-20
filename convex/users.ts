@@ -60,18 +60,38 @@ export const updateUser = internalMutation({
 });
 
 export const addOrgIdToUser = internalMutation({
-	args: { tokenIdentifier: v.string(), orgId: v.string(), role: userRoles },
+	args: {
+		tokenIdentifier: v.string(),
+		orgId: v.string(),
+		role: userRoles,
+		image: v.string(),
+		name: v.string(),
+	},
 	handler: async (ctx, args) => {
 		const user = await getUser(ctx, args.tokenIdentifier);
 
 		await ctx.db.patch(user._id, {
-			orgIds: [...user.orgIds, { orgId: args.orgId, role: args.role }],
+			orgIds: [
+				...user.orgIds,
+				{
+					orgId: args.orgId,
+					role: args.role,
+					image: args.image,
+					name: args.name,
+				},
+			],
 		});
 	},
 });
 
 export const updateRoleInOrgForUser = internalMutation({
-	args: { tokenIdentifier: v.string(), orgId: v.string(), role: userRoles },
+	args: {
+		tokenIdentifier: v.string(),
+		orgId: v.string(),
+		role: userRoles,
+		image: v.string(),
+		name: v.string(),
+	},
 	handler: async (ctx, args) => {
 		const user = await getUser(ctx, args.tokenIdentifier);
 
@@ -84,6 +104,8 @@ export const updateRoleInOrgForUser = internalMutation({
 		}
 
 		org.role = args.role;
+		org.name = args.name;
+		org.image = args.image;
 
 		await ctx.db.patch(user._id, {
 			orgIds: user.orgIds,
@@ -99,6 +121,8 @@ export const getUserProfile = query({
 		return {
 			name: user?.name,
 			image: user?.image,
+			tokenIdentifier: user?.tokenIdentifier,
+			orgIds: user?.orgIds,
 		};
 	},
 });

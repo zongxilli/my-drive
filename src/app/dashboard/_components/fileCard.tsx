@@ -2,18 +2,15 @@
 
 import { ReactNode, useEffect, useState } from 'react';
 import {
-	Download,
+	CopyPlus,
 	EllipsisVerticalIcon,
 	ExternalLink,
-	GanttChartIcon,
 	History,
-	ImageIcon,
+	Pencil,
 	Star,
 	StarOff,
-	TextIcon,
 	Trash,
 	Trash2,
-	TrashIcon,
 } from 'lucide-react';
 import { useMutation, useQuery } from 'convex/react';
 import { FaFilePdf, FaFileCsv, FaImage, FaRegImages } from 'react-icons/fa6';
@@ -38,7 +35,11 @@ import {
 	DropdownMenuContent,
 	DropdownMenuItem,
 	DropdownMenuLabel,
+	DropdownMenuPortal,
 	DropdownMenuSeparator,
+	DropdownMenuSub,
+	DropdownMenuSubContent,
+	DropdownMenuSubTrigger,
 	DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import {
@@ -58,10 +59,12 @@ import { Doc, Id } from '../../../../convex/_generated/dataModel';
 import { api } from '../../../../convex/_generated/api';
 import Image from 'next/image';
 import { FileWithStarred } from '../../../../convex/files';
-import useAdminPermission from '@/hooks/useAdminPermission';
 import { useUser } from '@clerk/nextjs';
 import clsx from 'clsx';
 import { formatUtils } from '@/utils/format';
+import { Input } from '@/components/ui/input';
+import { RenameModal } from '@/components/shared';
+import { useUserIdentity } from '@/hooks';
 
 type FileCardProps = {
 	file: FileWithStarred;
@@ -70,8 +73,10 @@ type FileCardProps = {
 
 const FileCard = ({ file, listView }: FileCardProps) => {
 	const { toast } = useToast();
-	const hasAdminPermission = useAdminPermission();
+	const { status, userId, orgId } = useUserIdentity();
 
+	const createFile = useMutation(api.files.createFile);
+	const renameFile = useMutation(api.files.renameFile);
 	const deleteFile = useMutation(api.files.deleteFile);
 	const restoreFile = useMutation(api.files.restoreFile);
 	const moveFileToTrash = useMutation(api.files.moveFileToTrash);
@@ -79,7 +84,9 @@ const FileCard = ({ file, listView }: FileCardProps) => {
 	const userProfile = useQuery(api.users.getUserProfile, {
 		userId: file.userId,
 	});
+	const generateUploadUrl = useMutation(api.files.generateUploadUrl);
 
+	const [showRenameFileModal, setShowRenameFileModal] = useState(false);
 	const [showDeleteFileModal, setShowDeleteFileModal] = useState(false);
 
 	const fileIcons = {
@@ -94,7 +101,7 @@ const FileCard = ({ file, listView }: FileCardProps) => {
 		toast({
 			variant: 'destructive',
 			title: 'File moved to trash',
-			description: 'This file will be deleted in 30 days',
+			description: 'This file will be deleted in 7 days',
 		});
 	};
 
@@ -118,13 +125,53 @@ const FileCard = ({ file, listView }: FileCardProps) => {
 		});
 	};
 
+	const handleAddFileTo = async (targetId: string) => {
+		try {
+			const postUrl = await generateUploadUrl();
+
+			const response = await fetch(file.url);
+			if (!response.ok) {
+				throw new Error('Failed to fetch file from URL');
+			}
+			const fileBlob = await response.blob();
+
+			const result = await fetch(postUrl, {
+				method: 'POST',
+				headers: { 'Content-Type': fileBlob.type },
+				body: fileBlob,
+			});
+			const { storageId } = await result.json();
+
+			await createFile({
+				name: file.name,
+				fileId: storageId,
+				type: file.type,
+				orgId: targetId,
+			});
+
+			toast({
+				variant: 'success',
+				title: 'File uploaded',
+				description: 'File added to personal drive successfully',
+			});
+		} catch {
+			toast({
+				variant: 'destructive',
+				title: 'Something went wrong',
+				description:
+					'Your file could not be uploaded, please try again later',
+			});
+		}
+	};
+
 	const renderDropdownMenu = () => {
 		const renderDropdownMenuItem = (
 			icon: ReactNode,
 			label: string,
 			onClickHandler: () => void,
 			warning?: boolean,
-			show?: boolean
+			show?: boolean,
+			disabled?: boolean
 		) => {
 			if (!show) return null;
 
@@ -134,10 +181,129 @@ const FileCard = ({ file, listView }: FileCardProps) => {
 						' text-red-600': warning,
 					})}
 					onClick={onClickHandler}
+					disabled={disabled}
+					key={label}
 				>
 					{icon}
 					{label}
 				</DropdownMenuItem>
+			);
+		};
+
+		const renderAddToOrganizationsDropdownItem = () => {
+			return (
+				<DropdownMenuSub>
+					<DropdownMenuSubTrigger className='flex items-center gap-2 cursor-pointer'>
+						<CopyPlus className='w-4 h-4' />
+						Duplicate to
+					</DropdownMenuSubTrigger>
+					<DropdownMenuPortal>
+						<DropdownMenuSubContent>
+							{renderDropdownMenuItem(
+								<Avatar className='w-4 h-4'>
+									<AvatarImage src={userProfile?.image} />
+									<AvatarFallback>
+										{userProfile?.name}
+									</AvatarFallback>
+								</Avatar>,
+								'Personal drive',
+								() => handleAddFileTo(userId!),
+								false,
+								true,
+								file.orgId === userId
+							)}
+
+							<DropdownMenuSeparator />
+
+							{userProfile?.orgIds?.map((org) =>
+								renderDropdownMenuItem(
+									<Avatar className='w-4 h-4'>
+										<AvatarImage src={org?.image} />
+										<AvatarFallback>
+											{org.name}
+										</AvatarFallback>
+									</Avatar>,
+									org.name,
+									() => handleAddFileTo(org.orgId!),
+									false,
+									true,
+									org.orgId === file.orgId
+								)
+							)}
+						</DropdownMenuSubContent>
+					</DropdownMenuPortal>
+				</DropdownMenuSub>
+			);
+		};
+
+		const renderCommonDropdownItems = () => {
+			return (
+				<>
+					{renderDropdownMenuItem(
+						<ExternalLink className='w-4 h-4' />,
+						'Open',
+						() => window.open(file.url, '_blank'),
+						false,
+						true,
+						false
+					)}
+					{renderDropdownMenuItem(
+						<Pencil className='w-4 h-4' />,
+						'Rename',
+						() => setShowRenameFileModal(true),
+						false,
+						true,
+						false
+					)}
+					{renderDropdownMenuItem(
+						<StarOff className='w-4 h-4' />,
+						'Remove from starred',
+						() => toggleStar({ fileId: file._id }),
+						false,
+						file.isStarred,
+						false
+					)}
+					{renderDropdownMenuItem(
+						<Star className='w-4 h-4' />,
+						'Add to starred',
+						() => toggleStar({ fileId: file._id }),
+						false,
+						!file.isStarred,
+						false
+					)}
+					{renderAddToOrganizationsDropdownItem()}
+				</>
+			);
+		};
+
+		const renderDangerDropdownItems = () => {
+			return (
+				<>
+					{renderDropdownMenuItem(
+						<History className='w-4 h-4' />,
+						'Restore',
+						handleRestore,
+						false,
+						file.movedToTrash,
+						false
+					)}
+					{renderDropdownMenuItem(
+						<Trash className='w-4 h-4' />,
+						'Move to trash',
+						handleMoveToTrash,
+						true,
+						!file.movedToTrash,
+						false
+					)}
+					{renderDropdownMenuItem(
+						<Trash2 className='w-4 h-4' />,
+						'Delete forever',
+						() => setShowDeleteFileModal(true),
+						true,
+						file.movedToTrash,
+						false
+					)}
+				</>
 			);
 		};
 
@@ -147,53 +313,31 @@ const FileCard = ({ file, listView }: FileCardProps) => {
 					<EllipsisVerticalIcon size={20} />
 				</DropdownMenuTrigger>
 				<DropdownMenuContent>
-					{renderDropdownMenuItem(
-						<ExternalLink className='w-4 h-4' />,
-						'Open',
-						() => window.open(file.url, '_blank'),
-						false,
-						true
-					)}
-					{renderDropdownMenuItem(
-						<StarOff className='w-4 h-4' />,
-						'Remove from starred',
-						() => toggleStar({ fileId: file._id }),
-						false,
-						file.isStarred
-					)}
-					{renderDropdownMenuItem(
-						<Star className='w-4 h-4' />,
-						'Add to starred',
-						() => toggleStar({ fileId: file._id }),
-						false,
-						!file.isStarred
-					)}
-
+					{renderCommonDropdownItems()}
 					<DropdownMenuSeparator />
-
-					{renderDropdownMenuItem(
-						<History className='w-4 h-4' />,
-						'Restore',
-						handleRestore,
-						false,
-						file.movedToTrash
-					)}
-					{renderDropdownMenuItem(
-						<Trash className='w-4 h-4' />,
-						'Move to trash',
-						handleMoveToTrash,
-						true,
-						!file.movedToTrash
-					)}
-					{renderDropdownMenuItem(
-						<Trash2 className='w-4 h-4' />,
-						'Delete forever',
-						() => setShowDeleteFileModal(true),
-						true,
-						file.movedToTrash
-					)}
+					{renderDangerDropdownItems()}
 				</DropdownMenuContent>
 			</DropdownMenu>
+		);
+	};
+
+	const renderRenameFileModal = () => {
+		const handleRename = async (newName: string) => {
+			await renameFile({ fileId: file._id, name: newName });
+
+			toast({
+				variant: 'success',
+				title: 'File renamed',
+				description: 'This file has been successfully renamed',
+			});
+		};
+
+		return (
+			<RenameModal
+				showModal={showRenameFileModal}
+				setShowModal={setShowRenameFileModal}
+				onConfirm={handleRename}
+			/>
 		);
 	};
 
@@ -298,6 +442,7 @@ const FileCard = ({ file, listView }: FileCardProps) => {
 			{renderListFileCard()}
 			{renderGridFileCard()}
 			{renderDeleteFileModal()}
+			{renderRenameFileModal()}
 		</>
 	);
 };

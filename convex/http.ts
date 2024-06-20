@@ -50,6 +50,8 @@ http.route({
 							result.data.role === 'org:admin'
 								? 'admin'
 								: 'member',
+						image: result.data.organization.image_url ?? '',
+						name: result.data.organization.name,
 					});
 					break;
 				case 'organizationMembership.updated':
@@ -62,6 +64,8 @@ http.route({
 								result.data.role === 'org:admin'
 									? 'admin'
 									: 'member',
+							image: result.data.organization.image_url ?? '',
+							name: result.data.organization.name,
 						}
 					);
 					break;

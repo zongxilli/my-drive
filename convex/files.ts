@@ -106,7 +106,9 @@ export const createFile = mutation({
 		const url = await ctx.storage.getUrl(args.fileId);
 
 		if (!url) {
-			throw new ConvexError('XXX');
+			throw new ConvexError(
+				'something went wrong, please try again later'
+			);
 		}
 
 		// await Promise.all(
@@ -190,6 +192,38 @@ export const getFiles = query({
 	},
 });
 
+export const renameFile = mutation({
+	args: {
+		fileId: v.id('files'),
+		name: v.string(),
+	},
+	handler: async (ctx, args) => {
+		const access = await hasAccessToFile(ctx, args.fileId);
+
+		if (!access) {
+			throw new ConvexError('you do not have access to this file');
+		}
+
+		const { user, file } = access;
+
+		const isAdmin =
+			user.orgIds.find((item) => item.orgId === file.orgId)?.role ===
+			'admin';
+
+		// TODO: check if isFileCreatedByCurrentUser
+		// TODO: if is not, its not allowed to delete this file
+		// if (!isAdmin) {
+		// 	throw new ConvexError(
+		// 		'you do not have permission to move this file'
+		// 	);
+		// }
+
+		await ctx.db.patch(args.fileId, {
+			name: args.name,
+		});
+	},
+});
+
 export const moveFileToTrash = mutation({
 	args: {
 		fileId: v.id('files'),
@@ -209,11 +243,11 @@ export const moveFileToTrash = mutation({
 
 		// TODO: check if isFileCreatedByCurrentUser
 		// TODO: if is not, its not allowed to delete this file
-		if (!isAdmin) {
-			throw new ConvexError(
-				'you do not have permission to move this file'
-			);
-		}
+		// if (!isAdmin) {
+		// 	throw new ConvexError(
+		// 		'you do not have permission to move this file'
+		// 	);
+		// }
 
 		await ctx.db.patch(args.fileId, {
 			movedToTrash: true,
@@ -240,11 +274,11 @@ export const restoreFile = mutation({
 
 		// TODO: check if isFileCreatedByCurrentUser
 		// TODO: if is not, its not allowed to delete this file
-		if (!isAdmin) {
-			throw new ConvexError(
-				'you do not have permission to restore this file'
-			);
-		}
+		// if (!isAdmin) {
+		// 	throw new ConvexError(
+		// 		'you do not have permission to restore this file'
+		// 	);
+		// }
 
 		await ctx.db.patch(args.fileId, {
 			movedToTrash: false,
@@ -271,11 +305,11 @@ export const deleteFile = mutation({
 
 		// TODO: check if isFileCreatedByCurrentUser
 		// TODO: if is not, its not allowed to delete this file
-		if (!isAdmin) {
-			throw new ConvexError(
-				'you do not have permission to delete this file'
-			);
-		}
+		// if (!isAdmin) {
+		// 	throw new ConvexError(
+		// 		'you do not have permission to delete this file'
+		// 	);
+		// }
 
 		await ctx.storage.delete(file.fileId);
 		await ctx.db.delete(args.fileId);
