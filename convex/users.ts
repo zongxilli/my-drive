@@ -8,8 +8,8 @@ export const getUser = async (
 ) => {
 	const user = await ctx.db
 		.query('users')
-		.withIndex('by_tokenIdentifier', (q) =>
-			q.eq('tokenIdentifier', tokenIdentifier)
+		.withIndex('by_tokenIdentifier', (query) =>
+			query.eq('tokenIdentifier', tokenIdentifier)
 		)
 		.first();
 
@@ -21,12 +21,35 @@ export const getUser = async (
 };
 
 export const createUser = internalMutation({
-	args: { tokenIdentifier: v.string(), identifier: v.string() },
+	args: {
+		tokenIdentifier: v.string(),
+		identifier: v.string(),
+		name: v.string(),
+		image: v.string(),
+	},
 	handler: async (ctx, args) => {
 		await ctx.db.insert('users', {
 			tokenIdentifier: args.tokenIdentifier,
 			identifier: args.identifier,
 			orgIds: [],
+			name: args.name,
+			image: args.image,
+		});
+	},
+});
+
+export const updateUser = internalMutation({
+	args: { tokenIdentifier: v.string(), name: v.string(), image: v.string() },
+	async handler(ctx, args) {
+		const user = await getUser(ctx, args.tokenIdentifier);
+
+		if (!user) {
+			throw new ConvexError('no user with this token found');
+		}
+
+		await ctx.db.patch(user._id, {
+			name: args.name,
+			image: args.image,
 		});
 	},
 });

@@ -1,5 +1,11 @@
 import { ConvexError, v } from 'convex/values';
-import { MutationCtx, QueryCtx, mutation, query } from './_generated/server';
+import {
+	MutationCtx,
+	QueryCtx,
+	internalMutation,
+	mutation,
+	query,
+} from './_generated/server';
 import { getUser } from './users';
 import { schemaFileTypes } from './schema';
 import { Doc, Id } from './_generated/dataModel';
@@ -103,6 +109,20 @@ export const createFile = mutation({
 			throw new ConvexError('XXX');
 		}
 
+		// await Promise.all(
+		// 	new Array(30).fill('').map(async () => {
+		// 		await ctx.db.insert('files', {
+		// 			name: args.name,
+		// 			type: args.type,
+		// 			fileId: args.fileId,
+		// 			orgId: args.orgId,
+		// 			url: url,
+		// 			createByIdentifier: user.identifier,
+		// 			movedToTrash: false,
+		// 		});
+		// 	})
+		// );
+
 		await ctx.db.insert('files', {
 			name: args.name,
 			type: args.type,
@@ -110,6 +130,7 @@ export const createFile = mutation({
 			orgId: args.orgId,
 			url: url,
 			createByIdentifier: user.identifier,
+			movedToTrash: false,
 		});
 	},
 });
@@ -170,6 +191,68 @@ export const getFiles = query({
 	},
 });
 
+export const moveFileToTrash = mutation({
+	args: {
+		fileId: v.id('files'),
+	},
+	handler: async (ctx, args) => {
+		const access = await hasAccessToFile(ctx, args.fileId);
+
+		if (!access) {
+			throw new ConvexError('you do not have access to this file');
+		}
+
+		const { user, file } = access;
+
+		const isAdmin =
+			user.orgIds.find((item) => item.orgId === file.orgId)?.role ===
+			'admin';
+		const isFileCreatedByCurrentUser =
+			file.createByIdentifier === user.identifier;
+
+		if (!isAdmin && !isFileCreatedByCurrentUser) {
+			throw new ConvexError(
+				'you do not have permission to move this file'
+			);
+		}
+
+		await ctx.db.patch(args.fileId, {
+			movedToTrash: true,
+		});
+	},
+});
+
+export const restoreFile = mutation({
+	args: {
+		fileId: v.id('files'),
+	},
+	handler: async (ctx, args) => {
+		const access = await hasAccessToFile(ctx, args.fileId);
+
+		if (!access) {
+			throw new ConvexError('you do not have access to this file');
+		}
+
+		const { user, file } = access;
+
+		const isAdmin =
+			user.orgIds.find((item) => item.orgId === file.orgId)?.role ===
+			'admin';
+		const isFileCreatedByCurrentUser =
+			file.createByIdentifier === user.identifier;
+
+		if (!isAdmin && !isFileCreatedByCurrentUser) {
+			throw new ConvexError(
+				'you do not have permission to restore this file'
+			);
+		}
+
+		await ctx.db.patch(args.fileId, {
+			movedToTrash: false,
+		});
+	},
+});
+
 export const deleteFile = mutation({
 	args: {
 		fileId: v.id('files'),
@@ -178,7 +261,7 @@ export const deleteFile = mutation({
 		const access = await hasAccessToFile(ctx, args.fileId);
 
 		if (!access) {
-			throw new ConvexError('you do not have access to file');
+			throw new ConvexError('you do not have access to this file');
 		}
 
 		const { user, file } = access;
@@ -195,6 +278,7 @@ export const deleteFile = mutation({
 			);
 		}
 
+		await ctx.storage.delete(file.fileId);
 		await ctx.db.delete(args.fileId);
 	},
 });
@@ -207,7 +291,7 @@ export const toggleStar = mutation({
 		const access = await hasAccessToFile(ctx, args.fileId);
 
 		if (!access) {
-			throw new ConvexError('you do not have access to file');
+			throw new ConvexError('you do not have access to this file');
 		}
 		const { user, file } = access;
 
@@ -251,5 +335,22 @@ export const getAllFavorites = query({
 			.collect();
 
 		return favorites;
+	},
+});
+
+export const deleteAllTrashFiles = internalMutation({
+	args: {},
+	async handler(ctx) {
+		const trashFiles = await ctx.db
+			.query('files')
+			.withIndex('by_movedToTrash', (q) => q.eq('movedToTrash', true))
+			.collect();
+
+		await Promise.all(
+			trashFiles.map(async (file) => {
+				await ctx.storage.delete(file.fileId);
+				return await ctx.db.delete(file._id);
+			})
+		);
 	},
 });

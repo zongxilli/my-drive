@@ -25,7 +25,10 @@ export default defineSchema({
 		orgId: v.string(),
 		url: v.string(),
 		createByIdentifier: v.string(),
-	}).index('by_orgId', ['orgId']),
+		movedToTrash: v.boolean(),
+	})
+		.index('by_orgId', ['orgId'])
+		.index('by_movedToTrash', ['movedToTrash']),
 
 	starredFiles: defineTable({
 		fileId: v.id('files'),
@@ -42,5 +45,7 @@ export default defineSchema({
 				role: userRoles,
 			})
 		),
+		name: v.optional(v.string()),
+		image: v.optional(v.string()),
 	}).index('by_tokenIdentifier', ['tokenIdentifier']),
 });

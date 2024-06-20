@@ -9,6 +9,7 @@ import { HomeIcon, LaptopMinimal, Loader2, Star, Trash } from 'lucide-react';
 import emptyPlaceholder from '../../../../public/emptyPlaceholder.svg';
 import emptySearchResultPlaceholder from '../../../../public/emptySearchResultPlaceholder.svg';
 import emptyStarredPlaceholder from '../../../../public/emptyStarredPlaceholder.svg';
+import emptyTrashPlaceholder from '../../../../public/emptyTrashPlaceholder.svg';
 import { ReactNode, useCallback, useMemo, useState } from 'react';
 import useDebouncedState from '@/hooks/useDebounceState';
 import { Button } from '@/components/ui/button';
@@ -18,12 +19,20 @@ import FileCard from '../_components/fileCard';
 import { api } from '../../../../convex/_generated/api';
 import { usePathname } from 'next/navigation';
 
-export default function FileBrowser() {
+type FileBrowserProps = {
+	starredView?: boolean;
+	trashView?: boolean;
+};
+
+export default function FileBrowser({
+	starredView = false,
+	trashView = false,
+}: FileBrowserProps) {
 	const organization = useOrganization();
 	const user = useUser();
-	const pathname = usePathname();
 
-	const isStarredPage = pathname === '/dashboard/starred';
+	const isStarredView = starredView;
+	const isTrashView = trashView;
 
 	const [searchQuery, setSearchQuery] = useState('');
 	const debouncedSearchQuery = useDebouncedState(searchQuery);
@@ -54,12 +63,16 @@ export default function FileBrowser() {
 
 		const filtered = files.filter((file) => filterFunction(file.name));
 
-		if (isStarredPage) {
+		if (isStarredView) {
 			return filtered.filter((file) => file.isStarred);
 		}
 
-		return filtered;
-	}, [files, filterFunction, isStarredPage]);
+		if (isTrashView) {
+			return filtered.filter((file) => file.movedToTrash);
+		}
+
+		return filtered.filter((file) => !file.movedToTrash);
+	}, [files, filterFunction, isStarredView, isTrashView]);
 
 	const renderFiles = () => {
 		if (files === undefined) {
@@ -86,7 +99,7 @@ export default function FileBrowser() {
 			);
 		}
 
-		if (isStarredPage && filteredFiles.length === 0) {
+		if (isStarredView && filteredFiles.length === 0) {
 			return (
 				<div className='h-[70dvh] flex flex-col items-center justify-center gap-8'>
 					<Image
@@ -97,6 +110,21 @@ export default function FileBrowser() {
 						src={emptyStarredPlaceholder}
 					/>
 					You do not have any starred files
+				</div>
+			);
+		}
+
+		if (isTrashView && filteredFiles.length === 0) {
+			return (
+				<div className='h-[70dvh] flex flex-col items-center justify-center gap-8'>
+					<Image
+						priority
+						alt='empty search result placeholder'
+						width={300}
+						height={300}
+						src={emptyTrashPlaceholder}
+					/>
+					You do not have any files in trash
 				</div>
 			);
 		}

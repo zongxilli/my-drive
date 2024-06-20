@@ -3,5 +3,5 @@
 import FileBrowser from '../_components/fileBrowser';
 
 export default function StarredPage() {
-	return <FileBrowser />;
+	return <FileBrowser starredView />;
 }

@@ -6,11 +6,13 @@ import {
 	EllipsisVerticalIcon,
 	ExternalLink,
 	GanttChartIcon,
+	History,
 	ImageIcon,
 	Star,
 	StarOff,
 	TextIcon,
 	Trash,
+	Trash2,
 	TrashIcon,
 } from 'lucide-react';
 import { useMutation } from 'convex/react';
@@ -57,6 +59,7 @@ import Image from 'next/image';
 import { FileWithStarred } from '../../../../convex/files';
 import useAdminPermission from '@/hooks/useAdminPermission';
 import { useUser } from '@clerk/nextjs';
+import clsx from 'clsx';
 
 type FileCardProps = {
 	file: FileWithStarred;
@@ -71,6 +74,8 @@ const FileCard = ({ file }: FileCardProps) => {
 	const isFileCreatedByCurrentUser = user?.id === file.createByIdentifier;
 
 	const deleteFile = useMutation(api.files.deleteFile);
+	const restoreFile = useMutation(api.files.restoreFile);
+	const moveFileToTrash = useMutation(api.files.moveFileToTrash);
 	const toggleStar = useMutation(api.files.toggleStar);
 
 	const [showDeleteFileModal, setShowDeleteFileModal] = useState(false);
@@ -81,60 +86,116 @@ const FileCard = ({ file }: FileCardProps) => {
 		csv: <LuText className=' h-5 w-5 flex-shrink-0 text-gray-600' />,
 	} as Record<Doc<'files'>['type'], ReactNode>;
 
+	const handleMoveToTrash = async () => {
+		await moveFileToTrash({ fileId: file._id });
+
+		toast({
+			variant: 'destructive',
+			title: 'File moved to trash',
+			description: 'This file will be deleted in 30 days',
+		});
+	};
+
+	const handleDelete = async () => {
+		await deleteFile({ fileId: file._id });
+
+		toast({
+			variant: 'destructive',
+			title: 'File deleted',
+			description: 'This file has been permanently removed',
+		});
+	};
+
+	const handleRestore = async () => {
+		await restoreFile({ fileId: file._id });
+
+		toast({
+			variant: 'success',
+			title: 'File restored',
+			description: 'This file has been moved back to all files',
+		});
+	};
+
 	const renderDropdownMenu = () => {
+		const renderDropdownMenuItem = (
+			icon: ReactNode,
+			label: string,
+			onClickHandler: () => void,
+			warning?: boolean,
+			show?: boolean
+		) => {
+			if (!show) return null;
+
+			return (
+				<DropdownMenuItem
+					className={clsx('flex items-center gap-2 cursor-pointer', {
+						' text-red-600': warning,
+					})}
+					onClick={onClickHandler}
+				>
+					{icon}
+					{label}
+				</DropdownMenuItem>
+			);
+		};
+
 		return (
 			<DropdownMenu>
 				<DropdownMenuTrigger>
 					<EllipsisVerticalIcon size={20} />
 				</DropdownMenuTrigger>
 				<DropdownMenuContent>
-					<DropdownMenuItem
-						className='flex items-center gap-2 cursor-pointer'
-						onClick={() => window.open(file.url, '_blank')}
-					>
-						<ExternalLink className='w-4 h-4' />
-						Open
-					</DropdownMenuItem>
-					<DropdownMenuItem
-						className='flex items-center gap-2 cursor-pointer'
-						onClick={() => toggleStar({ fileId: file._id })}
-					>
-						{file.isStarred ? (
-							<StarOff className='w-4 h-4' />
-						) : (
-							<Star className='w-4 h-4' />
-						)}
-						{file.isStarred
-							? 'Remove from starred'
-							: 'Add to starred'}
-					</DropdownMenuItem>
+					{renderDropdownMenuItem(
+						<ExternalLink className='w-4 h-4' />,
+						'Open',
+						() => window.open(file.url, '_blank'),
+						false,
+						true
+					)}
+					{renderDropdownMenuItem(
+						<StarOff className='w-4 h-4' />,
+						'Remove from starred',
+						() => toggleStar({ fileId: file._id }),
+						false,
+						file.isStarred
+					)}
+					{renderDropdownMenuItem(
+						<Star className='w-4 h-4' />,
+						'Add to starred',
+						() => toggleStar({ fileId: file._id }),
+						false,
+						!file.isStarred
+					)}
+
 					<DropdownMenuSeparator />
-					<DropdownMenuItem
-						className='flex items-center gap-2 text-red-600 cursor-pointer'
-						onClick={() => setShowDeleteFileModal(true)}
-						disabled={
-							!hasAdminPermission && !isFileCreatedByCurrentUser
-						}
-					>
-						<Trash className='w-4 h-4' />
-						Delete
-					</DropdownMenuItem>
+
+					{renderDropdownMenuItem(
+						<History className='w-4 h-4' />,
+						'Restore',
+						handleRestore,
+						false,
+						file.movedToTrash
+					)}
+					{renderDropdownMenuItem(
+						<Trash className='w-4 h-4' />,
+						'Move to trash',
+						handleMoveToTrash,
+						true,
+						!file.movedToTrash
+					)}
+					{renderDropdownMenuItem(
+						<Trash2 className='w-4 h-4' />,
+						'Delete forever',
+						() => setShowDeleteFileModal(true),
+						true,
+						file.movedToTrash
+					)}
 				</DropdownMenuContent>
 			</DropdownMenu>
 		);
 	};
 
 	const renderDeleteFileModal = () => {
-		const handleDelete = async () => {
-			await deleteFile({ fileId: file._id });
-
-			toast({
-				variant: 'destructive',
-				title: 'File deleted',
-				description: 'You have successfully deleted this file',
-			});
-		};
-
 		return (
 			<AlertDialog
 				open={showDeleteFileModal}
@@ -142,13 +203,9 @@ const FileCard = ({ file }: FileCardProps) => {
 			>
 				<AlertDialogContent>
 					<AlertDialogHeader>
-						<AlertDialogTitle>
-							Are you absolutely sure?
-						</AlertDialogTitle>
+						<AlertDialogTitle>Are you sure?</AlertDialogTitle>
 						<AlertDialogDescription>
-							This action cannot be undone. This will permanently
-							delete your account and remove your data from our
-							servers.
+							This action will permanently delete the file.
 						</AlertDialogDescription>
 					</AlertDialogHeader>
 					<AlertDialogFooter>
