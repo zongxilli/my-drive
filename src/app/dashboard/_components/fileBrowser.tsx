@@ -4,7 +4,15 @@ import { useOrganization, useUser } from '@clerk/nextjs';
 import { useQuery } from 'convex/react';
 
 import Image from 'next/image';
-import { HomeIcon, LaptopMinimal, Loader2, Star, Trash } from 'lucide-react';
+import {
+	AlignJustify,
+	HomeIcon,
+	LaptopMinimal,
+	LayoutGrid,
+	Loader2,
+	Star,
+	Trash,
+} from 'lucide-react';
 
 import emptyPlaceholder from '../../../../public/emptyPlaceholder.svg';
 import emptySearchResultPlaceholder from '../../../../public/emptySearchResultPlaceholder.svg';
@@ -18,6 +26,7 @@ import SearchBar from '../_components/searchBar';
 import FileCard from '../_components/fileCard';
 import { api } from '../../../../convex/_generated/api';
 import { usePathname } from 'next/navigation';
+import clsx from 'clsx';
 
 type FileBrowserProps = {
 	starredView?: boolean;
@@ -34,6 +43,7 @@ export default function FileBrowser({
 	const isStarredView = starredView;
 	const isTrashView = trashView;
 
+	const [listView, setListView] = useState(false);
 	const [searchQuery, setSearchQuery] = useState('');
 	const debouncedSearchQuery = useDebouncedState(searchQuery);
 
@@ -145,10 +155,56 @@ export default function FileBrowser({
 		}
 
 		return (
-			<div className='grid grid-cols-card-auto-fill-minmax gap-6'>
+			<div
+				className={clsx('', {
+					'grid grid-cols-card-auto-fill-minmax gap-6': !listView,
+					'flex flex-col gap-2': listView,
+				})}
+			>
 				{filteredFiles.map((file, idx) => (
-					<FileCard key={idx} file={file} />
+					<FileCard key={idx} file={file} listView={listView} />
 				))}
+			</div>
+		);
+	};
+
+	const renderSwitchButton = () => {
+		return (
+			<div className='flex rounded-full border border-gray-300 border-solid shadow'>
+				<Button
+					onClick={() => setListView(true)}
+					className={clsx(
+						'h-8 w-12 flex items-center rounded-l-full bg-google-white hover:bg-google-lightBlue',
+						{
+							'bg-google-blue': listView,
+						}
+					)}
+				>
+					<AlignJustify className='w-4 h-4 text-black' />
+				</Button>
+				<Button
+					onClick={() => setListView(false)}
+					className={clsx(
+						'h-8 w-12 flex items-center rounded-r-full bg-google-white hover:bg-google-lightBlue',
+						{
+							'bg-google-blue': !listView,
+						}
+					)}
+				>
+					<LayoutGrid className='w-4 h-4 text-black' />
+				</Button>
+			</div>
+		);
+	};
+
+	const renderSearchBarAndActionButtons = () => {
+		return (
+			<div className='flex flex-col items-center gap-4'>
+				<SearchBar
+					searchQuery={searchQuery}
+					setSearchQuery={setSearchQuery}
+				/>
+				{renderSwitchButton()}
 			</div>
 		);
 	};
@@ -159,10 +215,7 @@ export default function FileBrowser({
 				<div className='w-full h-full p-4 box-border overflow-auto custom-scrollbar'>
 					<div className='flex justify-center items-center mb-8'>
 						{/* <h1 className='text-4xl font-bold'>Your files</h1> */}
-						<SearchBar
-							searchQuery={searchQuery}
-							setSearchQuery={setSearchQuery}
-						/>
+						{renderSearchBarAndActionButtons()}
 					</div>
 
 					{renderFiles()}

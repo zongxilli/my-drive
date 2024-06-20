@@ -65,11 +65,10 @@ import { formatUtils } from '@/utils/format';
 
 type FileCardProps = {
 	file: FileWithStarred;
+	listView: boolean;
 };
 
-// TODO: add 'createdBy` to file and let user to be able to delete the file if user is the creator
-
-const FileCard = ({ file }: FileCardProps) => {
+const FileCard = ({ file, listView }: FileCardProps) => {
 	const { toast } = useToast();
 	const hasAdminPermission = useAdminPermission();
 
@@ -222,7 +221,9 @@ const FileCard = ({ file }: FileCardProps) => {
 		);
 	};
 
-	const renderFileCard = () => {
+	const renderGridFileCard = () => {
+		if (listView) return null;
+
 		return (
 			<Card className='h-[15.625rem] rounded-xl bg-google-lightBlue'>
 				<CardHeader className='p-4'>
@@ -266,9 +267,36 @@ const FileCard = ({ file }: FileCardProps) => {
 		);
 	};
 
+	const renderListFileCard = () => {
+		if (!listView) return null;
+
+		return (
+			<Card className='h-12 py-2 px-4 flex items-center gap-4'>
+				<div>{fileIcons[file.type]}</div>
+				<div className='flex-grow text-ellipsis whitespace-nowrap overflow-hidden min-w-0 text-base cursor-default'>
+					{file.name}
+				</div>
+				<div className='flex items-center gap-2 flex-shrink-0'>
+					<Avatar className='w-5 h-5'>
+						<AvatarImage src={userProfile?.image} />
+						<AvatarFallback>user image</AvatarFallback>
+					</Avatar>
+					<div className='text-sm text-gray-500'>
+						{userProfile?.name}
+					</div>
+				</div>
+				<div className='pl-[5%] flex-shrink-0 text-sm text-gray-500 flex items-center gap-2 cursor-default'>
+					Created on {formatUtils.formatDate(file._creationTime)}
+				</div>
+				<div className='h-5 pl-[5%]'>{renderDropdownMenu()}</div>
+			</Card>
+		);
+	};
+
 	return (
 		<>
-			{renderFileCard()}
+			{renderListFileCard()}
+			{renderGridFileCard()}
 			{renderDeleteFileModal()}
 		</>
 	);
