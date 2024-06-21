@@ -339,6 +339,7 @@ const FileCard = ({ file, listView }: FileCardProps) => {
 				showModal={showRenameFileModal}
 				setShowModal={setShowRenameFileModal}
 				onConfirm={handleRename}
+				initialValue={file.name}
 			/>
 		);
 	};

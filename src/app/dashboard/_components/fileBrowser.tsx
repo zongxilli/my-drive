@@ -258,6 +258,7 @@ export default function FileBrowser({
 		const options = [
 			{
 				value: FileType.image,
+				searchValue: FileType.image,
 				label: (
 					<div className='flex items-center gap-2'>
 						<IoImages className='h-4 w-4 flex-shrink-0 text-blue-600' />
@@ -267,6 +268,7 @@ export default function FileBrowser({
 			},
 			{
 				value: FileType.pdf,
+				searchValue: FileType.pdf,
 				label: (
 					<div className='flex items-center gap-2'>
 						<MdPictureAsPdf className=' h-4 w-4 flex-shrink-0 text-red-600' />
@@ -276,6 +278,7 @@ export default function FileBrowser({
 			},
 			{
 				value: FileType.csv,
+				searchValue: FileType.csv,
 				label: (
 					<div className='flex items-center gap-2'>
 						<LuText className=' h-4 w-4 flex-shrink-0 text-gray-600' />

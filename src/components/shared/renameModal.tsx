@@ -15,14 +15,16 @@ type RenameModalProps = {
 	showModal: boolean;
 	setShowModal: Dispatch<SetStateAction<boolean>>;
 	onConfirm: (value: string) => void;
+	initialValue?: string;
 };
 
 const RenameModal = ({
 	showModal,
 	setShowModal,
 	onConfirm,
+	initialValue = '',
 }: RenameModalProps) => {
-	const [newName, setNewName] = useState('');
+	const [newName, setNewName] = useState(initialValue);
 
 	const renderRenameFileModal = () => {
 		return (

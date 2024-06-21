@@ -22,7 +22,7 @@ import clsx from 'clsx';
 
 export type Option = {
 	value: string;
-	searchValue?: string;
+	searchValue: string;
 	label: string | number | ReactNode;
 };
 
@@ -76,7 +76,7 @@ const DropdownMenu = ({
 			</PopoverTrigger>
 			<PopoverContent className='w-[200px] p-0'>
 				<Command>
-					<CommandInput placeholder='Search file types...' />
+					<CommandInput placeholder='Search...' />
 					<CommandList>
 						<CommandEmpty>No result found</CommandEmpty>
 						<CommandGroup>
@@ -84,12 +84,12 @@ const DropdownMenu = ({
 								<CommandItem
 									key={option.value}
 									className='cursor-pointer'
-									value={option.searchValue ?? option.value}
-									onSelect={(currentValue) => {
+									value={option.searchValue}
+									onSelect={() => {
 										setValue(
-											currentValue === value
+											option.value === value
 												? ''
-												: currentValue
+												: option.value
 										);
 										setOpen(false);
 									}}
