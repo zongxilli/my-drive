@@ -6,12 +6,14 @@ import { useQuery } from 'convex/react';
 import Image from 'next/image';
 import {
 	AlignJustify,
+	File,
 	HomeIcon,
 	LaptopMinimal,
 	LayoutGrid,
 	Loader2,
 	Star,
 	Trash,
+	UserRoundSearch,
 } from 'lucide-react';
 
 import emptyPlaceholder from '../../../../public/emptyPlaceholder.svg';
@@ -32,6 +34,10 @@ import { IoImages } from 'react-icons/io5';
 import { MdPictureAsPdf } from 'react-icons/md';
 import { LuText } from 'react-icons/lu';
 import { FileType } from '@/app/types/file';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Option } from '@/components/shared/dropdown';
+import { useUserIdentity } from '@/hooks';
+import { UserIdentity } from '@/hooks/useUserIdentity';
 
 type FileBrowserProps = {
 	starredView?: boolean;
@@ -53,15 +59,21 @@ export default function FileBrowser({
 	const debouncedSearchQuery = useDebouncedState(searchQuery);
 
 	const [fileTypeFilter, setFileTypeFilter] = useState('');
+	const [fileUserFilter, setFileUserFilter] = useState('');
 
-	let orgId = null;
-	if (organization.isLoaded && user.isLoaded) {
-		orgId = organization.organization?.id ?? user.user?.id;
-	}
+	const { status, userId, orgId } = useUserIdentity();
 
-	const files = useQuery(api.files.getFiles, {
-		orgId: orgId ?? 'skip',
-	});
+	const getQuery = () => {
+		if (!userId && !orgId) return 'skip';
+		if (orgId) return { orgId: orgId };
+		return { orgId: userId! };
+	};
+	const files = useQuery(api.files.getFiles, getQuery());
+	const isLoading = files === undefined;
+	const organizationUserBasicInfos = useQuery(
+		api.organizations.getOrganizationUserBasicInfos,
+		orgId ? { orgId: orgId } : 'skip'
+	);
 
 	const filterSearchQueryFunction = useCallback(
 		(item: string) => {
@@ -84,13 +96,23 @@ export default function FileBrowser({
 		[fileTypeFilter]
 	);
 
+	const filterFileUserFunction = useCallback(
+		(id: string) => {
+			if (!fileUserFilter) return true;
+
+			return id === fileUserFilter;
+		},
+		[fileUserFilter]
+	);
+
 	const filteredFiles = useMemo(() => {
 		if (!files) return [];
 
 		const filtered = files.filter(
 			(file) =>
 				filterSearchQueryFunction(file.name) &&
-				filterFileTypeFunction(file.type)
+				filterFileTypeFunction(file.type) &&
+				filterFileUserFunction(file.userId)
 		);
 
 		if (isStarredView) {
@@ -108,10 +130,11 @@ export default function FileBrowser({
 		isTrashView,
 		filterSearchQueryFunction,
 		filterFileTypeFunction,
+		filterFileUserFunction,
 	]);
 
 	const renderFiles = () => {
-		if (files === undefined) {
+		if (isLoading) {
 			return (
 				<div className='h-[70dvh] flex flex-col items-center justify-center gap-4 text-gray-400'>
 					<Loader2 className='animate-spin h-20 w-20' />
@@ -204,6 +227,7 @@ export default function FileBrowser({
 		return (
 			<div className='flex rounded-full border border-gray-300 border-solid shadow'>
 				<Button
+					disabled={isLoading}
 					onClick={() => setListView(true)}
 					className={clsx(
 						'h-8 w-12 flex items-center rounded-l-full bg-google-white hover:bg-google-lightBlue',
@@ -215,6 +239,7 @@ export default function FileBrowser({
 					<AlignJustify className='w-4 h-4 text-black' />
 				</Button>
 				<Button
+					disabled={isLoading}
 					onClick={() => setListView(false)}
 					className={clsx(
 						'h-8 w-12 flex items-center rounded-r-full bg-google-white hover:bg-google-lightBlue',
@@ -229,7 +254,7 @@ export default function FileBrowser({
 		);
 	};
 
-	const renderFilterButton = () => {
+	const renderFilterTypeButton = () => {
 		const options = [
 			{
 				value: FileType.image,
@@ -260,11 +285,58 @@ export default function FileBrowser({
 			},
 		];
 
+		const placeholder = (
+			<div className='flex items-center gap-2'>
+				<File className='w-4 h-4' />
+				Type
+			</div>
+		);
+
 		return (
 			<DropdownMenu
+				disabled={isLoading}
 				options={options}
 				value={fileTypeFilter}
 				setValue={setFileTypeFilter}
+				placeholder={placeholder}
+			/>
+		);
+	};
+
+	const renderFilterUserButton = () => {
+		let options: Option[] = [];
+		if (organizationUserBasicInfos) {
+			options = Object.values(organizationUserBasicInfos).map((info) => ({
+				value: info.userId,
+				label: (
+					<div className='w-full min-w-0 flex items-center gap-2'>
+						<Avatar className='w-4 h-4'>
+							<AvatarImage src={info.image} />
+							<AvatarFallback>{info.name}</AvatarFallback>
+						</Avatar>
+						<div className='text-ellipsis whitespace-nowrap overflow-hidden min-w-0 '>
+							{info.name}
+						</div>
+					</div>
+				),
+			}));
+		}
+
+		const placeholder = (
+			<div className='flex items-center gap-2'>
+				<UserRoundSearch className='w-4 h-4' />
+				People
+			</div>
+		);
+
+		return (
+			<DropdownMenu
+				wide
+				disabled={isLoading || status === UserIdentity.individual}
+				options={options}
+				value={fileUserFilter}
+				setValue={setFileUserFilter}
+				placeholder={placeholder}
 			/>
 		);
 	};
@@ -272,7 +344,8 @@ export default function FileBrowser({
 	const renderActionsBar = () => {
 		return (
 			<div className='w-full flex items-center justify-center gap-4'>
-				{renderFilterButton()}
+				{renderFilterTypeButton()}
+				{renderFilterUserButton()}
 				{renderSwitchButton()}
 			</div>
 		);
@@ -282,6 +355,7 @@ export default function FileBrowser({
 		return (
 			<div className='flex flex-col items-center gap-4'>
 				<SearchBar
+					disabled={isLoading}
 					searchQuery={searchQuery}
 					setSearchQuery={setSearchQuery}
 				/>

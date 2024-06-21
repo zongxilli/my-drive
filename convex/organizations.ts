@@ -5,6 +5,8 @@ import {
 	internalMutation,
 	query,
 } from './_generated/server';
+import { Doc, Id } from './_generated/dataModel';
+import { getUserProfile } from './users';
 
 export const getOrganization = async (
 	ctx: QueryCtx | MutationCtx,
@@ -62,5 +64,37 @@ export const updateOrganization = internalMutation({
 			name: args.name,
 			image: args.image,
 		});
+	},
+});
+
+type UserBasicInfo = {
+	name: string;
+	image?: string;
+	userId: string;
+};
+
+export const getOrganizationUserBasicInfos = query({
+	args: {
+		orgId: v.string(),
+	},
+	handler: async (ctx, args) => {
+		console.log(args.orgId);
+
+		const organization = await getOrganization(ctx, args.orgId);
+
+		let infos: Record<Id<'users'>, UserBasicInfo> = {};
+		await Promise.all(
+			organization.userIds.map(async (id) => {
+				const user = await ctx.db.get(id);
+				if (user && user.name && user._id)
+					infos[id] = {
+						name: user.name,
+						image: user.image,
+						userId: user._id,
+					};
+			})
+		);
+
+		return infos;
 	},
 });

@@ -18,8 +18,9 @@ import {
 	PopoverTrigger,
 } from '@/components/ui/popover';
 import { Dispatch, ReactNode, SetStateAction, useState } from 'react';
+import clsx from 'clsx';
 
-type Option = {
+export type Option = {
 	value: string;
 	label: string | number | ReactNode;
 };
@@ -28,9 +29,21 @@ type DropdownMenuProps = {
 	options: Option[];
 	value: string;
 	setValue: Dispatch<SetStateAction<string>>;
+
+	placeholder: string | number | ReactNode;
+	disabled?: boolean;
+	wide?: boolean;
 };
 
-const DropdownMenu = ({ options, value, setValue }: DropdownMenuProps) => {
+const DropdownMenu = ({
+	options,
+	value,
+	setValue,
+
+	placeholder,
+	disabled = false,
+	wide = false,
+}: DropdownMenuProps) => {
 	const [open, setOpen] = useState(false);
 
 	return (
@@ -40,18 +53,19 @@ const DropdownMenu = ({ options, value, setValue }: DropdownMenuProps) => {
 					variant='outline'
 					role='combobox'
 					aria-expanded={open}
-					className='h-8 w-28 justify-between rounded-full shadow'
+					className={clsx(
+						'h-8 w-32 justify-between rounded-full shadow',
+						{
+							'w-44': wide,
+						}
+					)}
+					disabled={disabled}
 				>
-					<div className='w-full flex items-center justify-between'>
-						{value ? (
-							options.find((option) => option.value === value)
-								?.label
-						) : (
-							<div className='flex items-center gap-2'>
-								<File className='w-4 h-4' />
-								Type
-							</div>
-						)}
+					<div className='w-full max-w-full flex items-center justify-between'>
+						{value
+							? options.find((option) => option.value === value)
+									?.label
+							: placeholder}
 						<ChevronsUpDown className='h-4 w-4 shrink-0 opacity-50' />
 					</div>
 				</Button>
@@ -60,7 +74,7 @@ const DropdownMenu = ({ options, value, setValue }: DropdownMenuProps) => {
 				<Command>
 					<CommandInput placeholder='Search file types...' />
 					<CommandList>
-						<CommandEmpty>No type found.</CommandEmpty>
+						<CommandEmpty>No result found</CommandEmpty>
 						<CommandGroup>
 							{options.map((option) => (
 								<CommandItem

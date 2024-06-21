@@ -23,9 +23,16 @@ const formSchema = z.object({
 type SearchBarProps = {
 	searchQuery: string;
 	setSearchQuery: Dispatch<SetStateAction<string>>;
+
+	disabled?: boolean;
 };
 
-const SearchBar = ({ searchQuery, setSearchQuery }: SearchBarProps) => {
+const SearchBar = ({
+	searchQuery,
+	setSearchQuery,
+
+	disabled,
+}: SearchBarProps) => {
 	const form = useForm<z.infer<typeof formSchema>>({
 		resolver: zodResolver(formSchema),
 		defaultValues: {
@@ -51,11 +58,11 @@ const SearchBar = ({ searchQuery, setSearchQuery }: SearchBarProps) => {
 							<FormControl>
 								<Input
 									{...field}
+									disabled={disabled}
 									placeholder='Search in Drive'
 									className='pl-10 rounded-full bg-google-lightBlue focus:bg-white'
 								/>
 							</FormControl>
-							{/* <FormMessage /> */}
 						</FormItem>
 					)}
 				/>

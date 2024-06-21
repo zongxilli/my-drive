@@ -191,10 +191,6 @@ const FileCard = ({ file, listView }: FileCardProps) => {
 		};
 
 		const renderAddToOrganizationsDropdownItem = () => {
-			const getOrganizationImages = (id: string) => {
-				return organizationImages[id];
-			};
-
 			return (
 				<DropdownMenuSub>
 					<DropdownMenuSubTrigger className='flex items-center gap-2 cursor-pointer'>

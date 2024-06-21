@@ -151,24 +151,6 @@ export const getFiles = query({
 		}
 		const { user } = access;
 
-		// if (args.starred) {
-		// 	const starredFiles = await ctx.db
-		// 		.query('starredFiles')
-		// 		.withIndex('by_userId_orgId_fileId', (query) =>
-		// 			query.eq('userId', user._id).eq('orgId', args.orgId)
-		// 		)
-		// 		.collect();
-
-		// 	const files = await ctx.db
-		// 		.query('files')
-		// 		.withIndex('by_orgId', (query) => query.eq('orgId', args.orgId))
-		// 		.collect();
-
-		// 	return files.filter((file) =>
-		// 		starredFiles.some((starred) => starred.fileId === file._id)
-		// 	);
-		// }
-
 		const files = await ctx.db
 			.query('files')
 			.withIndex('by_orgId', (query) => query.eq('orgId', args.orgId))
