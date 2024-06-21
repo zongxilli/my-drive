@@ -2,6 +2,7 @@ import { defineSchema, defineTable } from 'convex/server';
 import { v } from 'convex/values';
 import { Doc, Id } from './_generated/dataModel';
 
+// value of fileTypes should keep consistent to enum[FileType] in types/file.ts
 export const fileTypes = {
 	'image/png': 'image',
 	'image/jpeg': 'image',
@@ -9,6 +10,7 @@ export const fileTypes = {
 	'text/csv': 'csv',
 } as Record<string, Doc<'files'>['type']>;
 
+// type of schemaFileTypes should keep consistent to enum[FileType] in types/file.ts
 export const schemaFileTypes = v.union(
 	v.literal('image'),
 	v.literal('csv'),

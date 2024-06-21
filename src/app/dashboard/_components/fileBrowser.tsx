@@ -27,6 +27,11 @@ import FileCard from '../_components/fileCard';
 import { api } from '../../../../convex/_generated/api';
 import { usePathname } from 'next/navigation';
 import clsx from 'clsx';
+import { DropdownMenu } from '@/components/shared';
+import { IoImages } from 'react-icons/io5';
+import { MdPictureAsPdf } from 'react-icons/md';
+import { LuText } from 'react-icons/lu';
+import { FileType } from '@/app/types/file';
 
 type FileBrowserProps = {
 	starredView?: boolean;
@@ -47,6 +52,8 @@ export default function FileBrowser({
 	const [searchQuery, setSearchQuery] = useState('');
 	const debouncedSearchQuery = useDebouncedState(searchQuery);
 
+	const [fileTypeFilter, setFileTypeFilter] = useState('');
+
 	let orgId = null;
 	if (organization.isLoaded && user.isLoaded) {
 		orgId = organization.organization?.id ?? user.user?.id;
@@ -56,7 +63,7 @@ export default function FileBrowser({
 		orgId: orgId ?? 'skip',
 	});
 
-	const filterFunction = useCallback(
+	const filterSearchQueryFunction = useCallback(
 		(item: string) => {
 			if (debouncedSearchQuery === '') return true;
 			const normalizedFilter = debouncedSearchQuery
@@ -68,10 +75,23 @@ export default function FileBrowser({
 		[debouncedSearchQuery]
 	);
 
+	const filterFileTypeFunction = useCallback(
+		(type: 'image' | 'pdf' | 'csv') => {
+			if (!fileTypeFilter) return true;
+
+			return type === fileTypeFilter;
+		},
+		[fileTypeFilter]
+	);
+
 	const filteredFiles = useMemo(() => {
 		if (!files) return [];
 
-		const filtered = files.filter((file) => filterFunction(file.name));
+		const filtered = files.filter(
+			(file) =>
+				filterSearchQueryFunction(file.name) &&
+				filterFileTypeFunction(file.type)
+		);
 
 		if (isStarredView) {
 			return filtered.filter((file) => file.isStarred);
@@ -82,7 +102,13 @@ export default function FileBrowser({
 		}
 
 		return filtered.filter((file) => !file.movedToTrash);
-	}, [files, filterFunction, isStarredView, isTrashView]);
+	}, [
+		files,
+		isStarredView,
+		isTrashView,
+		filterSearchQueryFunction,
+		filterFileTypeFunction,
+	]);
 
 	const renderFiles = () => {
 		if (files === undefined) {
@@ -197,6 +223,55 @@ export default function FileBrowser({
 		);
 	};
 
+	const renderFilterButton = () => {
+		const options = [
+			{
+				value: FileType.image,
+				label: (
+					<div className='flex items-center gap-2'>
+						<IoImages className='h-4 w-4 flex-shrink-0 text-blue-600' />
+						Image
+					</div>
+				),
+			},
+			{
+				value: FileType.pdf,
+				label: (
+					<div className='flex items-center gap-2'>
+						<MdPictureAsPdf className=' h-4 w-4 flex-shrink-0 text-red-600' />
+						PDF
+					</div>
+				),
+			},
+			{
+				value: FileType.csv,
+				label: (
+					<div className='flex items-center gap-2'>
+						<LuText className=' h-4 w-4 flex-shrink-0 text-gray-600' />
+						CSV
+					</div>
+				),
+			},
+		];
+
+		return (
+			<DropdownMenu
+				options={options}
+				value={fileTypeFilter}
+				setValue={setFileTypeFilter}
+			/>
+		);
+	};
+
+	const renderActionsBar = () => {
+		return (
+			<div className='w-full flex items-center justify-center gap-4'>
+				{renderFilterButton()}
+				{renderSwitchButton()}
+			</div>
+		);
+	};
+
 	const renderSearchBarAndActionButtons = () => {
 		return (
 			<div className='flex flex-col items-center gap-4'>
@@ -204,7 +279,8 @@ export default function FileBrowser({
 					searchQuery={searchQuery}
 					setSearchQuery={setSearchQuery}
 				/>
-				{renderSwitchButton()}
+
+				{renderActionsBar()}
 			</div>
 		);
 	};

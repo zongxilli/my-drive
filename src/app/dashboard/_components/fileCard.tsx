@@ -13,13 +13,10 @@ import {
 	Trash2,
 } from 'lucide-react';
 import { useMutation, useQuery } from 'convex/react';
-import { FaFilePdf, FaFileCsv, FaImage, FaRegImages } from 'react-icons/fa6';
 import { MdPictureAsPdf } from 'react-icons/md';
-import { CiImageOn } from 'react-icons/ci';
 import { LuText } from 'react-icons/lu';
 import { IoImages } from 'react-icons/io5';
 import { PiFilePdfLight, PiFileCsvLight } from 'react-icons/pi';
-import { IoMdOpen, IoMdDownload, IoMdTrash } from 'react-icons/io';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
 import {

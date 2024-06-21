@@ -69,7 +69,6 @@ const UploadButton = () => {
 		const postUrl = await generateUploadUrl();
 
 		const fileType = values.file[0]!.type;
-		console.log(fileType);
 
 		const result = await fetch(postUrl, {
 			method: 'POST',

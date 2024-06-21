@@ -1,3 +1,4 @@
+import DropdownMenu from './dropdown';
 import RenameModal from './renameModal';
 
-export { RenameModal };
+export { RenameModal, DropdownMenu };
