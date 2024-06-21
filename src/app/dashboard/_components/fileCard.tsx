@@ -7,6 +7,7 @@ import {
 	ExternalLink,
 	History,
 	Pencil,
+	Plus,
 	Star,
 	StarOff,
 	Trash,
@@ -61,7 +62,7 @@ import clsx from 'clsx';
 import { formatUtils } from '@/utils/format';
 import { Input } from '@/components/ui/input';
 import { RenameModal } from '@/components/shared';
-import { useUserIdentity } from '@/hooks';
+import { useOnMountEffect, useUserIdentity } from '@/hooks';
 
 type FileCardProps = {
 	file: FileWithStarred;
@@ -82,6 +83,8 @@ const FileCard = ({ file, listView }: FileCardProps) => {
 		userId: file.userId,
 	});
 	const generateUploadUrl = useMutation(api.files.generateUploadUrl);
+	const organizationImages =
+		useQuery(api.users.getUserOrganizationImages) ?? {};
 
 	const [showRenameFileModal, setShowRenameFileModal] = useState(false);
 	const [showDeleteFileModal, setShowDeleteFileModal] = useState(false);
@@ -188,6 +191,10 @@ const FileCard = ({ file, listView }: FileCardProps) => {
 		};
 
 		const renderAddToOrganizationsDropdownItem = () => {
+			const getOrganizationImages = (id: string) => {
+				return organizationImages[id];
+			};
+
 			return (
 				<DropdownMenuSub>
 					<DropdownMenuSubTrigger className='flex items-center gap-2 cursor-pointer'>
@@ -215,7 +222,9 @@ const FileCard = ({ file, listView }: FileCardProps) => {
 							{userProfile?.orgIds?.map((org) =>
 								renderDropdownMenuItem(
 									<Avatar className='w-4 h-4'>
-										<AvatarImage src={org?.image} />
+										<AvatarImage
+											src={organizationImages[org.orgId]}
+										/>
 										<AvatarFallback>
 											{org.name}
 										</AvatarFallback>
@@ -417,19 +426,19 @@ const FileCard = ({ file, listView }: FileCardProps) => {
 				<div className='flex-grow text-ellipsis whitespace-nowrap overflow-hidden min-w-0 text-base cursor-default'>
 					{file.name}
 				</div>
-				<div className='flex items-center gap-2 flex-shrink-0'>
+				<div className='w-[6rem] lg:w-[10rem] flex items-center justify-start gap-2 flex-shrink-0'>
 					<Avatar className='w-5 h-5'>
 						<AvatarImage src={userProfile?.image} />
 						<AvatarFallback>user image</AvatarFallback>
 					</Avatar>
-					<div className='text-sm text-gray-500'>
+					<div className='text-ellipsis whitespace-nowrap overflow-hidden min-w-0 text-sm text-gray-500'>
 						{userProfile?.name}
 					</div>
 				</div>
-				<div className='pl-[5%] flex-shrink-0 text-sm text-gray-500 flex items-center gap-2 cursor-default'>
+				<div className='w-[9rem] lg:w-[12rem] flex-shrink-0 text-sm text-gray-500 flex items-center justify-start gap-2 cursor-default'>
 					Created on {formatUtils.formatDate(file._creationTime)}
 				</div>
-				<div className='h-5 pl-[5%]'>{renderDropdownMenu()}</div>
+				<div className='h-5'>{renderDropdownMenu()}</div>
 			</Card>
 		);
 	};

@@ -40,7 +40,7 @@ const DropdownMenu = ({ options, value, setValue }: DropdownMenuProps) => {
 					variant='outline'
 					role='combobox'
 					aria-expanded={open}
-					className='h-8 w-36 justify-between rounded-lg shadow'
+					className='h-8 w-28 justify-between rounded-full shadow'
 				>
 					<div className='w-full flex items-center justify-between'>
 						{value ? (

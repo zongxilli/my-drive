@@ -42,17 +42,42 @@ http.route({
 						image: result.data.image_url,
 					});
 					break;
+				case 'organization.created':
+					await ctx.runMutation(
+						internal.organizations.createOrganization,
+						{
+							tokenIdentifier: `https://${process.env.CLERK_HOSTNAME}|${result.data.created_by}`,
+							orgId: result.data.id,
+							image: result.data.image_url ?? '',
+							name: result.data.name,
+						}
+					);
+					break;
+				case 'organization.updated':
+					await ctx.runMutation(
+						internal.organizations.updateOrganization,
+						{
+							tokenIdentifier: `https://${process.env.CLERK_HOSTNAME}|${result.data.created_by}`,
+							orgId: result.data.id,
+							image: result.data.image_url ?? '',
+							name: result.data.name,
+						}
+					);
+					break;
 				case 'organizationMembership.created':
-					await ctx.runMutation(internal.users.addOrgIdToUser, {
-						tokenIdentifier: `https://${process.env.CLERK_HOSTNAME}|${result.data.public_user_data.user_id}`,
-						orgId: result.data.organization.id,
-						role:
-							result.data.role === 'org:admin'
-								? 'admin'
-								: 'member',
-						image: result.data.organization.image_url ?? '',
-						name: result.data.organization.name,
-					});
+					await ctx.runMutation(
+						internal.users.handleUserCreationInOrganization,
+						{
+							tokenIdentifier: `https://${process.env.CLERK_HOSTNAME}|${result.data.public_user_data.user_id}`,
+							orgId: result.data.organization.id,
+							role:
+								result.data.role === 'org:admin'
+									? 'admin'
+									: 'member',
+							image: result.data.organization.image_url ?? '',
+							name: result.data.organization.name,
+						}
+					);
 					break;
 				case 'organizationMembership.updated':
 					await ctx.runMutation(
@@ -66,6 +91,15 @@ http.route({
 									: 'member',
 							image: result.data.organization.image_url ?? '',
 							name: result.data.organization.name,
+						}
+					);
+					break;
+				case 'organizationMembership.deleted':
+					await ctx.runMutation(
+						internal.users.deleteUserFromOrganization,
+						{
+							tokenIdentifier: `https://${process.env.CLERK_HOSTNAME}|${result.data.public_user_data.user_id}`,
+							orgId: result.data.organization.id,
 						}
 					);
 					break;

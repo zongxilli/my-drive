@@ -6,6 +6,8 @@ import {
 	query,
 } from './_generated/server';
 import { userRoles } from './schema';
+import { getOrganization, getOrganizationImage } from './organizations';
+import { Doc } from './_generated/dataModel';
 
 export const getUser = async (
 	ctx: QueryCtx | MutationCtx,
@@ -59,7 +61,8 @@ export const updateUser = internalMutation({
 	},
 });
 
-export const addOrgIdToUser = internalMutation({
+// NOTE: This function will also be called after each time a new organization is created
+export const handleUserCreationInOrganization = internalMutation({
 	args: {
 		tokenIdentifier: v.string(),
 		orgId: v.string(),
@@ -68,18 +71,23 @@ export const addOrgIdToUser = internalMutation({
 		name: v.string(),
 	},
 	handler: async (ctx, args) => {
+		// add org info to user.orgIds
 		const user = await getUser(ctx, args.tokenIdentifier);
-
 		await ctx.db.patch(user._id, {
 			orgIds: [
 				...user.orgIds,
 				{
 					orgId: args.orgId,
 					role: args.role,
-					image: args.image,
 					name: args.name,
 				},
 			],
+		});
+
+		// add user info to organization.userIds
+		const organization = await getOrganization(ctx, args.orgId);
+		await ctx.db.patch(organization._id, {
+			userIds: [...organization.userIds, user._id],
 		});
 	},
 });
@@ -105,11 +113,57 @@ export const updateRoleInOrgForUser = internalMutation({
 
 		org.role = args.role;
 		org.name = args.name;
-		org.image = args.image;
 
 		await ctx.db.patch(user._id, {
 			orgIds: user.orgIds,
 		});
+	},
+});
+
+export const deleteUserFromOrganization = internalMutation({
+	args: { tokenIdentifier: v.string(), orgId: v.string() },
+	handler: async (ctx, args) => {
+		// filter out org info from user.orgIds
+		const user = await getUser(ctx, args.tokenIdentifier);
+		const filteredOrgIds = [
+			...user.orgIds.filter((item) => item.orgId !== args.orgId),
+		];
+		await ctx.db.patch(user._id, {
+			orgIds: filteredOrgIds,
+		});
+
+		// add user info to organization.userIds
+		const organization = await getOrganization(ctx, args.orgId);
+		const filteredUserIds = [
+			...organization.userIds.filter((id) => id !== user._id),
+		];
+		await ctx.db.patch(organization._id, {
+			userIds: filteredUserIds,
+		});
+	},
+});
+
+export const getUserOrganizationImages = query({
+	args: {},
+	handler: async (
+		ctx
+	): Promise<Record<Doc<'organizations'>['orgId'], string>> => {
+		const identity = await ctx.auth.getUserIdentity();
+		if (!identity) {
+			return {};
+		}
+
+		const user = await getUser(ctx, identity.tokenIdentifier);
+
+		let images: Record<Doc<'organizations'>['orgId'], string> = {};
+		await Promise.all(
+			user.orgIds.map(async (item) => {
+				const image = await getOrganizationImage(ctx, item.orgId);
+				images[item.orgId] = image;
+			})
+		);
+
+		return images;
 	},
 });
 

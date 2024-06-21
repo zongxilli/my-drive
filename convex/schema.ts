@@ -45,11 +45,17 @@ export default defineSchema({
 			v.object({
 				orgId: v.string(),
 				role: userRoles,
-				image: v.optional(v.string()),
 				name: v.string(),
 			})
 		),
 		name: v.optional(v.string()),
 		image: v.optional(v.string()),
 	}).index('by_tokenIdentifier', ['tokenIdentifier']),
+
+	organizations: defineTable({
+		orgId: v.string(),
+		name: v.string(),
+		image: v.string(),
+		userIds: v.array(v.id('users')),
+	}).index('by_orgId', ['orgId']),
 });
