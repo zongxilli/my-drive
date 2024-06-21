@@ -22,6 +22,7 @@ import clsx from 'clsx';
 
 export type Option = {
 	value: string;
+	searchValue?: string;
 	label: string | number | ReactNode;
 };
 
@@ -46,6 +47,12 @@ const DropdownMenu = ({
 }: DropdownMenuProps) => {
 	const [open, setOpen] = useState(false);
 
+	const renderSelectedOption = () => {
+		if (!value) return placeholder;
+
+		return options.find((option) => option.value === value)?.label;
+	};
+
 	return (
 		<Popover open={open} onOpenChange={setOpen}>
 			<PopoverTrigger asChild>
@@ -62,10 +69,7 @@ const DropdownMenu = ({
 					disabled={disabled}
 				>
 					<div className='w-full max-w-full flex items-center justify-between'>
-						{value
-							? options.find((option) => option.value === value)
-									?.label
-							: placeholder}
+						{renderSelectedOption()}
 						<ChevronsUpDown className='h-4 w-4 shrink-0 opacity-50' />
 					</div>
 				</Button>
@@ -80,7 +84,7 @@ const DropdownMenu = ({
 								<CommandItem
 									key={option.value}
 									className='cursor-pointer'
-									value={option.value}
+									value={option.searchValue ?? option.value}
 									onSelect={(currentValue) => {
 										setValue(
 											currentValue === value

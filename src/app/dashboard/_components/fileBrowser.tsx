@@ -308,6 +308,7 @@ export default function FileBrowser({
 		if (organizationUserBasicInfos) {
 			options = Object.values(organizationUserBasicInfos).map((info) => ({
 				value: info.userId,
+				searchValue: info.name,
 				label: (
 					<div className='w-full min-w-0 flex items-center gap-2'>
 						<Avatar className='w-4 h-4'>
