@@ -78,8 +78,6 @@ export const getOrganizationUserBasicInfos = query({
 		orgId: v.string(),
 	},
 	handler: async (ctx, args) => {
-		console.log(args.orgId);
-
 		const organization = await getOrganization(ctx, args.orgId);
 
 		let infos: Record<Id<'users'>, UserBasicInfo> = {};

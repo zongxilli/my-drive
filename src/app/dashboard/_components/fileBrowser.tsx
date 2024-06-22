@@ -6,6 +6,7 @@ import { useQuery } from 'convex/react';
 import Image from 'next/image';
 import {
 	AlignJustify,
+	CalendarRange,
 	File,
 	HomeIcon,
 	LaptopMinimal,
@@ -33,11 +34,16 @@ import { DropdownMenu } from '@/components/shared';
 import { IoImages } from 'react-icons/io5';
 import { MdPictureAsPdf } from 'react-icons/md';
 import { LuText } from 'react-icons/lu';
-import { FileType } from '@/app/types/file';
+import {
+	FileTimeFilter,
+	FileTimeFilterUnion,
+	FileType,
+} from '@/app/types/file';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Option } from '@/components/shared/dropdown';
 import { useUserIdentity } from '@/hooks';
 import { UserIdentity } from '@/hooks/useUserIdentity';
+import { formatUtils } from '@/utils/format';
 
 type FileBrowserProps = {
 	starredView?: boolean;
@@ -60,6 +66,7 @@ export default function FileBrowser({
 
 	const [fileTypeFilter, setFileTypeFilter] = useState('');
 	const [fileUserFilter, setFileUserFilter] = useState('');
+	const [fileTimeFilter, setFileTimeFilter] = useState('');
 
 	const { status, userId, orgId } = useUserIdentity();
 
@@ -105,6 +112,18 @@ export default function FileBrowser({
 		[fileUserFilter]
 	);
 
+	const filterFileTimeFunction = useCallback(
+		(timestamp: number) => {
+			if (!fileTimeFilter) return true;
+
+			return formatUtils.isDateTimeStampWithinDate(
+				timestamp,
+				fileTimeFilter as FileTimeFilterUnion
+			);
+		},
+		[fileTimeFilter]
+	);
+
 	const filteredFiles = useMemo(() => {
 		if (!files) return [];
 
@@ -112,7 +131,8 @@ export default function FileBrowser({
 			(file) =>
 				filterSearchQueryFunction(file.name) &&
 				filterFileTypeFunction(file.type) &&
-				filterFileUserFunction(file.userId)
+				filterFileUserFunction(file.userId) &&
+				filterFileTimeFunction(file._creationTime)
 		);
 
 		if (isStarredView) {
@@ -131,6 +151,7 @@ export default function FileBrowser({
 		filterSearchQueryFunction,
 		filterFileTypeFunction,
 		filterFileUserFunction,
+		filterFileTimeFunction,
 	]);
 
 	const renderFiles = () => {
@@ -345,11 +366,60 @@ export default function FileBrowser({
 		);
 	};
 
+	const renderFilterTimeButton = () => {
+		const options = [
+			{
+				value: FileTimeFilter.today,
+				searchValue: FileTimeFilter.today,
+				label: FileTimeFilter.today,
+			},
+			{
+				value: FileTimeFilter.last3Days,
+				searchValue: FileTimeFilter.last3Days,
+				label: FileTimeFilter.last3Days,
+			},
+			{
+				value: FileTimeFilter.last7Days,
+				searchValue: FileTimeFilter.last7Days,
+				label: FileTimeFilter.last7Days,
+			},
+			{
+				value: FileTimeFilter.last30Days,
+				searchValue: FileTimeFilter.last30Days,
+				label: FileTimeFilter.last30Days,
+			},
+			{
+				value: FileTimeFilter.lastYear,
+				searchValue: FileTimeFilter.lastYear,
+				label: FileTimeFilter.lastYear,
+			},
+		];
+
+		const placeholder = (
+			<div className='flex items-center gap-2'>
+				<CalendarRange className='w-4 h-4' />
+				Created
+			</div>
+		);
+
+		return (
+			<DropdownMenu
+				noFilterBar
+				disabled={isLoading}
+				options={options}
+				value={fileTimeFilter}
+				setValue={setFileTimeFilter}
+				placeholder={placeholder}
+			/>
+		);
+	};
+
 	const renderActionsBar = () => {
 		return (
 			<div className='w-full flex items-center justify-center gap-4'>
-				{renderFilterTypeButton()}
 				{renderFilterUserButton()}
+				{renderFilterTypeButton()}
+				{renderFilterTimeButton()}
 				{renderSwitchButton()}
 			</div>
 		);

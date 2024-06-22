@@ -34,6 +34,7 @@ type DropdownMenuProps = {
 	placeholder: string | number | ReactNode;
 	disabled?: boolean;
 	wide?: boolean;
+	noFilterBar?: boolean;
 };
 
 const DropdownMenu = ({
@@ -44,6 +45,7 @@ const DropdownMenu = ({
 	placeholder,
 	disabled = false,
 	wide = false,
+	noFilterBar = false,
 }: DropdownMenuProps) => {
 	const [open, setOpen] = useState(false);
 
@@ -76,7 +78,7 @@ const DropdownMenu = ({
 			</PopoverTrigger>
 			<PopoverContent className='w-[200px] p-0'>
 				<Command>
-					<CommandInput placeholder='Search...' />
+					{!noFilterBar && <CommandInput placeholder='Search...' />}
 					<CommandList>
 						<CommandEmpty>No result found</CommandEmpty>
 						<CommandGroup>
