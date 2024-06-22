@@ -15,6 +15,7 @@ import {
 	Star,
 	Trash,
 	UserRoundSearch,
+	X,
 } from 'lucide-react';
 
 import emptyPlaceholder from '../../../../public/emptyPlaceholder.svg';
@@ -69,6 +70,8 @@ export default function FileBrowser({
 	const [fileTypeFilter, setFileTypeFilter] = useState('');
 	const [fileUserFilter, setFileUserFilter] = useState('');
 	const [fileTimeFilter, setFileTimeFilter] = useState('');
+	const noFilter =
+		fileTypeFilter === '' && fileUserFilter === '' && fileTimeFilter === '';
 
 	const { status, userId, orgId } = useUserIdentity();
 
@@ -429,41 +432,69 @@ export default function FileBrowser({
 		);
 	};
 
-	const renderActionsBar = () => {
+	const renderResetFilterButton = () => {
 		return (
-			<div className='w-full flex items-center justify-center gap-4'>
-				{renderFilterTypeButton()}
-				{renderFilterUserButton()}
-				{renderFilterTimeButton()}
-				{renderSwitchButton()}
-			</div>
+			<Button
+				variant='outline'
+				className={clsx(
+					'h-8 w-26 justify-between rounded-full shadow',
+					{
+						hidden: noFilter,
+					}
+				)}
+				onClick={() => {
+					setFileTypeFilter('');
+					setFileUserFilter('');
+					setFileTimeFilter('');
+				}}
+				disabled={isLoading}
+			>
+				Clear filters
+			</Button>
 		);
 	};
 
-	const renderSearchBarAndActionButtons = () => {
+	const renderActionsBar = () => {
 		return (
-			<div className='flex flex-col items-center gap-4'>
-				<SearchBar
-					disabled={isLoading}
-					searchQuery={searchQuery}
-					setSearchQuery={setSearchQuery}
-				/>
+			<>
+				<div className='flex items-center gap-4'>
+					{renderFilterTypeButton()}
+					{renderFilterUserButton()}
+					{renderFilterTimeButton()}
+					{renderResetFilterButton()}
+				</div>
+				<div>{renderSwitchButton()}</div>
+			</>
+		);
+	};
 
-				{renderActionsBar()}
-			</div>
+	const renderSearchBar = () => {
+		return (
+			<SearchBar
+				disabled={isLoading}
+				searchQuery={searchQuery}
+				setSearchQuery={setSearchQuery}
+			/>
 		);
 	};
 
 	const renderContent = () => {
 		return (
 			<div className='flex-grow h-[92dvh] mr-2 rounded-2xl overflow-hidden bg-google-white shadow-sm'>
-				<div className='w-full h-full p-4 box-border overflow-auto custom-scrollbar'>
-					<div className='flex justify-center items-center mb-8'>
-						{/* <h1 className='text-4xl font-bold'>Your files</h1> */}
-						{renderSearchBarAndActionButtons()}
+				<div className='w-full h-full p-4 flex flex-col gap-6 box-border overflow-auto custom-scrollbar relative'>
+					<div className='w-full flex justify-center items-center text-2xl pt-4'>
+						Welcome to Drive
 					</div>
 
-					{renderFiles()}
+					<div className='w-full flex justify-center items-center'>
+						{renderSearchBar()}
+					</div>
+
+					<div className='w-full flex justify-between items-center sticky top-0 z-[1]'>
+						{renderActionsBar()}
+					</div>
+
+					<div className='w-full'>{renderFiles()}</div>
 				</div>
 			</div>
 		);
