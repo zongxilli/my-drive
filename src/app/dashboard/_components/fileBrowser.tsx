@@ -21,6 +21,7 @@ import emptyPlaceholder from '../../../../public/emptyPlaceholder.svg';
 import emptySearchResultPlaceholder from '../../../../public/emptySearchResultPlaceholder.svg';
 import emptyStarredPlaceholder from '../../../../public/emptyStarredPlaceholder.svg';
 import emptyTrashPlaceholder from '../../../../public/emptyTrashPlaceholder.svg';
+import notSignedIn from '../../../../public/notSignedInPlaceholder.svg';
 import { ReactNode, useCallback, useMemo, useState } from 'react';
 import useDebouncedState from '@/hooks/useDebounceState';
 import { Button } from '@/components/ui/button';
@@ -44,6 +45,7 @@ import { Option } from '@/components/shared/dropdown';
 import { useUserIdentity } from '@/hooks';
 import { UserIdentity } from '@/hooks/useUserIdentity';
 import { formatUtils } from '@/utils/format';
+import { useRouter } from 'next/router';
 
 type FileBrowserProps = {
 	starredView?: boolean;
@@ -155,6 +157,20 @@ export default function FileBrowser({
 	]);
 
 	const renderFiles = () => {
+		if (status === UserIdentity.unknown)
+			return (
+				<div className='h-[70dvh] flex flex-col items-center justify-center gap-8'>
+					<Image
+						priority
+						alt='empty search result placeholder'
+						width={300}
+						height={300}
+						src={notSignedIn}
+					/>
+					Sign in to view your drive
+				</div>
+			);
+
 		if (isLoading) {
 			return (
 				<div className='h-[70dvh] flex flex-col items-center justify-center gap-4 text-gray-400'>
