@@ -356,7 +356,6 @@ export default function FileBrowser({
 
 		return (
 			<DropdownMenu
-				wide
 				disabled={isLoading || status === UserIdentity.individual}
 				options={options}
 				value={fileUserFilter}
@@ -417,8 +416,8 @@ export default function FileBrowser({
 	const renderActionsBar = () => {
 		return (
 			<div className='w-full flex items-center justify-center gap-4'>
-				{renderFilterUserButton()}
 				{renderFilterTypeButton()}
+				{renderFilterUserButton()}
 				{renderFilterTimeButton()}
 				{renderSwitchButton()}
 			</div>
