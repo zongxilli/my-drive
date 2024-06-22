@@ -1,7 +1,6 @@
 'use client';
 
 import { ReactNode } from 'react';
-import Drawer from './_components/drawer';
 
 export default function DashboardLayout({
 	children,
@@ -10,10 +9,7 @@ export default function DashboardLayout({
 }>) {
 	return (
 		<main className='mx-auto bg-google-extraLightBlue'>
-			<div className='w-full h-[93dvh] flex'>
-				<Drawer />
-				{children}
-			</div>
+			<div className='w-full h-[93dvh] flex'>{children}</div>
 		</main>
 	);
 }

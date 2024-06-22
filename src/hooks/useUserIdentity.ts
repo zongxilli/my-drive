@@ -4,12 +4,12 @@ import { useState, useEffect } from 'react';
 export enum UserIdentity {
 	organization = 'organization',
 	individual = 'individual',
-	unknown = 'unknown', // not logged in
+	notSignedIn = 'notSignedIn', // not logged in
 }
 
 const useUserIdentity = () => {
 	const [identity, setIdentity] = useState<UserIdentity>(
-		UserIdentity.unknown
+		UserIdentity.notSignedIn
 	);
 	const organization = useOrganization();
 	const user = useUser();

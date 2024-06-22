@@ -1,35 +1,38 @@
 'use client';
 
 import Link from 'next/link';
-import { ReactNode } from 'react';
+import { Dispatch, ReactNode, SetStateAction } from 'react';
 import UploadButton from './uploadButton';
 import { LaptopMinimal, Star, Trash } from 'lucide-react';
 import { usePathname } from 'next/navigation';
 import clsx from 'clsx';
+import { DashboardView } from '../page';
 
-const Drawer = () => {
-	const pathname = usePathname();
+type DrawerProps = {
+	currentView: DashboardView;
+	setCurrentView: Dispatch<SetStateAction<DashboardView>>;
+};
 
+const Drawer = ({ currentView, setCurrentView }: DrawerProps) => {
 	const renderDrawerButton = (
-		link: string,
+		link: DashboardView,
 		label: string,
 		icon: ReactNode
 	) => {
 		return (
-			<Link href={link}>
-				<div
-					className={clsx(
-						'w-full h-[2.5rem] py-2 px-4 box-border flex items-center gap-2 rounded-full',
-						{
-							'bg-google-blue': pathname === link,
-							'hover:bg-gray-200': pathname !== link,
-						}
-					)}
-				>
-					{icon}
-					{label}
-				</div>
-			</Link>
+			<div
+				onClick={() => setCurrentView(link)}
+				className={clsx(
+					'w-full h-[2.5rem] py-2 px-4 box-border flex items-center gap-2 rounded-full cursor-pointer',
+					{
+						'bg-google-blue': currentView === link,
+						'hover:bg-gray-200': currentView !== link,
+					}
+				)}
+			>
+				{icon}
+				{label}
+			</div>
 		);
 	};
 
@@ -38,17 +41,17 @@ const Drawer = () => {
 			<UploadButton />
 			<div className='flex flex-col'>
 				{renderDrawerButton(
-					'/dashboard/files',
+					DashboardView.files,
 					'All files',
 					<LaptopMinimal className='h-4 w-4' />
 				)}
 				{renderDrawerButton(
-					'/dashboard/starred',
+					DashboardView.starred,
 					'Starred',
 					<Star className='h-4 w-4' />
 				)}
 				{renderDrawerButton(
-					'/dashboard/trash',
+					DashboardView.trash,
 					'Trash',
 					<Trash className='h-4 w-4' />
 				)}

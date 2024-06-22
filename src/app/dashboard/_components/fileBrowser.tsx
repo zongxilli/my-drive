@@ -157,7 +157,7 @@ export default function FileBrowser({
 	]);
 
 	const renderFiles = () => {
-		if (status === UserIdentity.unknown)
+		if (status === UserIdentity.notSignedIn)
 			return (
 				<div className='h-[70dvh] flex flex-col items-center justify-center gap-8'>
 					<Image
