@@ -1,22 +1,16 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 
-import { useOrganization, useUser } from '@clerk/nextjs';
 import clsx from 'clsx';
 import { useQuery } from 'convex/react';
 import {
 	AlignJustify,
 	CalendarRange,
 	File,
-	HomeIcon,
-	LaptopMinimal,
 	LayoutGrid,
 	Loader2,
-	Star,
-	Trash,
 	UserRoundSearch,
-	X,
 } from 'lucide-react';
 import Image from 'next/image';
 import { IoImages } from 'react-icons/io5';
@@ -45,7 +39,6 @@ import emptyTrashPlaceholder from '../../../../public/emptyTrashPlaceholder.svg'
 import notSignedIn from '../../../../public/notSignedInPlaceholder.svg';
 import FileCard from '../_components/fileCard';
 import SearchBar from '../_components/searchBar';
-
 
 type FileBrowserProps = {
 	starredView?: boolean;
@@ -481,7 +474,6 @@ export default function FileBrowser({
 		return (
 			<SearchBar
 				disabled={isLoading || shouldDisableAll}
-				searchQuery={searchQuery}
 				setSearchQuery={setSearchQuery}
 			/>
 		);

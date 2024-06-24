@@ -3,7 +3,7 @@
 import { Dispatch, ReactNode, SetStateAction, useState } from 'react';
 
 import clsx from 'clsx';
-import { Check, ChevronsUpDown, File } from 'lucide-react';
+import { Check, ChevronsUpDown } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import {

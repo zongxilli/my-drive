@@ -9,7 +9,6 @@ import { Loader2, Plus } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
-
 import { Button } from '@/components/ui/button';
 import {
 	Dialog,
@@ -29,7 +28,7 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/components/ui/use-toast';
-import useUserIdentity, { UserIdentity } from '@/hooks/useUserIdentity';
+import useUserIdentity from '@/hooks/useUserIdentity';
 
 import { api } from '../../../../convex/_generated/api';
 import { fileTypes } from '../../../../convex/schema';

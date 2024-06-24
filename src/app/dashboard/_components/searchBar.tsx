@@ -3,19 +3,11 @@
 import { Dispatch, SetStateAction } from 'react';
 
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Loader2, SearchIcon } from 'lucide-react';
+import { SearchIcon } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
-import { Button } from '@/components/ui/button';
-import {
-	Form,
-	FormControl,
-	FormField,
-	FormItem,
-	FormLabel,
-	FormMessage,
-} from '@/components/ui/form';
+import { Form, FormControl, FormField, FormItem } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 
 const formSchema = z.object({
@@ -23,14 +15,12 @@ const formSchema = z.object({
 });
 
 type SearchBarProps = {
-	searchQuery: string;
 	setSearchQuery: Dispatch<SetStateAction<string>>;
 
 	disabled?: boolean;
 };
 
 const SearchBar = ({
-	searchQuery,
 	setSearchQuery,
 
 	disabled,

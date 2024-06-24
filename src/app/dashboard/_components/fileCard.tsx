@@ -1,8 +1,7 @@
 'use client';
 
-import { ReactNode, useEffect, useState } from 'react';
+import { ReactNode, useState } from 'react';
 
-import { useUser } from '@clerk/nextjs';
 import clsx from 'clsx';
 import { useMutation, useQuery } from 'convex/react';
 import {
@@ -11,7 +10,6 @@ import {
 	ExternalLink,
 	History,
 	Pencil,
-	Plus,
 	Star,
 	StarOff,
 	Trash,
@@ -33,22 +31,13 @@ import {
 	AlertDialogFooter,
 	AlertDialogHeader,
 	AlertDialogTitle,
-	AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import {
-	Card,
-	CardContent,
-	CardDescription,
-	CardFooter,
-	CardHeader,
-	CardTitle,
-} from '@/components/ui/card';
+import { Card, CardFooter, CardHeader } from '@/components/ui/card';
 import {
 	DropdownMenu,
 	DropdownMenuContent,
 	DropdownMenuItem,
-	DropdownMenuLabel,
 	DropdownMenuPortal,
 	DropdownMenuSeparator,
 	DropdownMenuSub,
@@ -56,16 +45,13 @@ import {
 	DropdownMenuSubTrigger,
 	DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Input } from '@/components/ui/input';
 import { useToast } from '@/components/ui/use-toast';
-import { useOnMountEffect, useUserIdentity } from '@/hooks';
+import { useUserIdentity } from '@/hooks';
 import { formatUtils } from '@/utils/format';
 
 import { api } from '../../../../convex/_generated/api';
-import { Doc, Id } from '../../../../convex/_generated/dataModel';
+import { Doc } from '../../../../convex/_generated/dataModel';
 import { FileWithStarred } from '../../../../convex/files';
-
-
 
 type FileCardProps = {
 	file: FileWithStarred;
@@ -74,7 +60,7 @@ type FileCardProps = {
 
 const FileCard = ({ file, listView }: FileCardProps) => {
 	const { toast } = useToast();
-	const { status, userId, orgId } = useUserIdentity();
+	const { userId } = useUserIdentity();
 
 	const createFile = useMutation(api.files.createFile);
 	const renameFile = useMutation(api.files.renameFile);

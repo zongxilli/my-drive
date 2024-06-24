@@ -2,15 +2,12 @@
 
 import { useEffect } from 'react';
 
-import Image from 'next/image';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { FaGoogleDrive } from 'react-icons/fa';
 
 import { useUserIdentity } from '@/hooks';
 import { UserIdentity } from '@/hooks/useUserIdentity';
-
-
 
 export default function LandingPage() {
 	const { status } = useUserIdentity();
