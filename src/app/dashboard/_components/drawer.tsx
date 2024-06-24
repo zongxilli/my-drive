@@ -4,8 +4,8 @@ import { Dispatch, ReactNode, SetStateAction } from 'react';
 import UploadButton from './uploadButton';
 import { LaptopMinimal, Star, Trash } from 'lucide-react';
 import clsx from 'clsx';
-import { DashboardView } from '../page';
 import { useUserIdentity } from '@/hooks';
+import { DashboardView } from '@/app/types/views';
 
 type DrawerProps = {
 	currentView: DashboardView;
