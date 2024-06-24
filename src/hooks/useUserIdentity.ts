@@ -5,23 +5,29 @@ export enum UserIdentity {
 	organization = 'organization',
 	individual = 'individual',
 	notSignedIn = 'notSignedIn', // not logged in
+	unknown = 'unknown', // initial value
 }
 
 const useUserIdentity = () => {
 	const [identity, setIdentity] = useState<UserIdentity>(
-		UserIdentity.notSignedIn
+		UserIdentity.unknown
 	);
 	const organization = useOrganization();
 	const user = useUser();
+
 	const orgId = organization.organization?.id;
 	const userId = user.user?.id;
 
 	useEffect(() => {
-		if (organization.isLoaded && user.isLoaded && user.isSignedIn) {
-			if (organization.organization) {
-				setIdentity(UserIdentity.organization);
+		if (organization.isLoaded && user.isLoaded) {
+			if (user.isSignedIn) {
+				if (organization.organization) {
+					setIdentity(UserIdentity.organization);
+				} else {
+					setIdentity(UserIdentity.individual);
+				}
 			} else {
-				setIdentity(UserIdentity.individual);
+				setIdentity(UserIdentity.notSignedIn);
 			}
 		}
 	}, [organization, user]);
@@ -30,6 +36,9 @@ const useUserIdentity = () => {
 		status: identity,
 		userId,
 		orgId,
+		shouldDisableAll:
+			identity === UserIdentity.unknown ||
+			identity === UserIdentity.notSignedIn,
 	};
 };
 

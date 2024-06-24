@@ -30,6 +30,7 @@ import {
 	FormMessage,
 } from '@/components/ui/form';
 import { fileTypes } from '../../../../convex/schema';
+import useUserIdentity, { UserIdentity } from '@/hooks/useUserIdentity';
 
 const formSchema = z.object({
 	title: z.string().min(1).max(200),
@@ -39,6 +40,7 @@ const formSchema = z.object({
 });
 
 const UploadButton = () => {
+	const { shouldDisableAll } = useUserIdentity();
 	const { toast } = useToast();
 	const organization = useOrganization();
 	const user = useUser();
@@ -112,6 +114,7 @@ const UploadButton = () => {
 		>
 			<DialogTrigger asChild>
 				<Button
+					disabled={shouldDisableAll}
 					variant='outline'
 					className='h-[3.5rem] w-[6.25rem] rounded-2xl flex items-center gap-3 shadow'
 				>

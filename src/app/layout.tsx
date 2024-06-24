@@ -4,7 +4,6 @@ import { Toaster } from '@/components/ui/toaster';
 
 import './globals.css';
 import ConvexClientProvider from './ConvexClientProvider';
-import Header from './header';
 
 const font = Baloo_Thambi_2({ weight: ['500'], subsets: ['latin'] });
 
@@ -24,7 +23,6 @@ export default function RootLayout({
 				<ConvexClientProvider>
 					<Toaster />
 
-					<Header />
 					{children}
 				</ConvexClientProvider>
 			</body>

@@ -23,14 +23,12 @@ import emptySearchResultPlaceholder from '../../../../public/emptySearchResultPl
 import emptyStarredPlaceholder from '../../../../public/emptyStarredPlaceholder.svg';
 import emptyTrashPlaceholder from '../../../../public/emptyTrashPlaceholder.svg';
 import notSignedIn from '../../../../public/notSignedInPlaceholder.svg';
-import { ReactNode, useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import useDebouncedState from '@/hooks/useDebounceState';
 import { Button } from '@/components/ui/button';
-import Link from 'next/link';
 import SearchBar from '../_components/searchBar';
 import FileCard from '../_components/fileCard';
 import { api } from '../../../../convex/_generated/api';
-import { usePathname } from 'next/navigation';
 import clsx from 'clsx';
 import { DropdownMenu } from '@/components/shared';
 import { IoImages } from 'react-icons/io5';
@@ -46,7 +44,6 @@ import { Option } from '@/components/shared/dropdown';
 import { useUserIdentity } from '@/hooks';
 import { UserIdentity } from '@/hooks/useUserIdentity';
 import { formatUtils } from '@/utils/format';
-import { useRouter } from 'next/router';
 
 type FileBrowserProps = {
 	starredView?: boolean;
@@ -57,8 +54,7 @@ export default function FileBrowser({
 	starredView = false,
 	trashView = false,
 }: FileBrowserProps) {
-	const organization = useOrganization();
-	const user = useUser();
+	const { status, userId, orgId, shouldDisableAll } = useUserIdentity();
 
 	const isStarredView = starredView;
 	const isTrashView = trashView;
@@ -72,8 +68,6 @@ export default function FileBrowser({
 	const [fileTimeFilter, setFileTimeFilter] = useState('');
 	const noFilter =
 		fileTypeFilter === '' && fileUserFilter === '' && fileTimeFilter === '';
-
-	const { status, userId, orgId } = useUserIdentity();
 
 	const getQuery = () => {
 		if (!userId && !orgId) return 'skip';
@@ -160,6 +154,15 @@ export default function FileBrowser({
 	]);
 
 	const renderFiles = () => {
+		if (status === UserIdentity.unknown) {
+			return (
+				<div className='h-[70dvh] flex flex-col items-center justify-center gap-4 text-gray-400'>
+					<Loader2 className='animate-spin h-20 w-20' />
+					Loading account...
+				</div>
+			);
+		}
+
 		if (status === UserIdentity.notSignedIn)
 			return (
 				<div className='h-[70dvh] flex flex-col items-center justify-center gap-8'>
@@ -267,7 +270,7 @@ export default function FileBrowser({
 		return (
 			<div className='flex rounded-full border border-gray-300 border-solid shadow'>
 				<Button
-					disabled={isLoading}
+					disabled={isLoading || shouldDisableAll}
 					onClick={() => setListView(true)}
 					className={clsx(
 						'h-8 w-12 flex items-center rounded-l-full bg-google-white hover:bg-google-lightBlue',
@@ -279,7 +282,7 @@ export default function FileBrowser({
 					<AlignJustify className='w-4 h-4 text-black' />
 				</Button>
 				<Button
-					disabled={isLoading}
+					disabled={isLoading || shouldDisableAll}
 					onClick={() => setListView(false)}
 					className={clsx(
 						'h-8 w-12 flex items-center rounded-r-full bg-google-white hover:bg-google-lightBlue',
@@ -337,7 +340,7 @@ export default function FileBrowser({
 
 		return (
 			<DropdownMenu
-				disabled={isLoading}
+				disabled={isLoading || shouldDisableAll}
 				options={options}
 				value={fileTypeFilter}
 				setValue={setFileTypeFilter}
@@ -375,7 +378,11 @@ export default function FileBrowser({
 
 		return (
 			<DropdownMenu
-				disabled={isLoading || status === UserIdentity.individual}
+				disabled={
+					isLoading ||
+					shouldDisableAll ||
+					status === UserIdentity.individual
+				}
 				options={options}
 				value={fileUserFilter}
 				setValue={setFileUserFilter}
@@ -423,7 +430,7 @@ export default function FileBrowser({
 		return (
 			<DropdownMenu
 				noFilterBar
-				disabled={isLoading}
+				disabled={isLoading || shouldDisableAll}
 				options={options}
 				value={fileTimeFilter}
 				setValue={setFileTimeFilter}
@@ -447,7 +454,7 @@ export default function FileBrowser({
 					setFileUserFilter('');
 					setFileTimeFilter('');
 				}}
-				disabled={isLoading}
+				disabled={isLoading || shouldDisableAll}
 			>
 				Clear filters
 			</Button>
@@ -471,7 +478,7 @@ export default function FileBrowser({
 	const renderSearchBar = () => {
 		return (
 			<SearchBar
-				disabled={isLoading}
+				disabled={isLoading || shouldDisableAll}
 				searchQuery={searchQuery}
 				setSearchQuery={setSearchQuery}
 			/>

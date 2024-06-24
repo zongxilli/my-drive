@@ -1,12 +1,11 @@
 'use client';
 
-import Link from 'next/link';
 import { Dispatch, ReactNode, SetStateAction } from 'react';
 import UploadButton from './uploadButton';
 import { LaptopMinimal, Star, Trash } from 'lucide-react';
-import { usePathname } from 'next/navigation';
 import clsx from 'clsx';
 import { DashboardView } from '../page';
+import { useUserIdentity } from '@/hooks';
 
 type DrawerProps = {
 	currentView: DashboardView;
@@ -14,6 +13,8 @@ type DrawerProps = {
 };
 
 const Drawer = ({ currentView, setCurrentView }: DrawerProps) => {
+	const { shouldDisableAll } = useUserIdentity();
+
 	const renderDrawerButton = (
 		link: DashboardView,
 		label: string,
@@ -25,8 +26,11 @@ const Drawer = ({ currentView, setCurrentView }: DrawerProps) => {
 				className={clsx(
 					'w-full h-[2.5rem] py-2 px-4 box-border flex items-center gap-2 rounded-full cursor-pointer',
 					{
-						'bg-google-blue': currentView === link,
-						'hover:bg-gray-200': currentView !== link,
+						'bg-google-blue':
+							currentView === link && !shouldDisableAll,
+						'hover:bg-gray-200':
+							currentView !== link && !shouldDisableAll,
+						'pointer-events-none text-gray-400': shouldDisableAll,
 					}
 				)}
 			>
