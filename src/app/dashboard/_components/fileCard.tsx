@@ -1,6 +1,10 @@
 'use client';
 
 import { ReactNode, useEffect, useState } from 'react';
+
+import { useUser } from '@clerk/nextjs';
+import clsx from 'clsx';
+import { useMutation, useQuery } from 'convex/react';
 import {
 	CopyPlus,
 	EllipsisVerticalIcon,
@@ -13,13 +17,25 @@ import {
 	Trash,
 	Trash2,
 } from 'lucide-react';
-import { useMutation, useQuery } from 'convex/react';
-import { MdPictureAsPdf } from 'react-icons/md';
-import { LuText } from 'react-icons/lu';
+import Image from 'next/image';
 import { IoImages } from 'react-icons/io5';
+import { LuText } from 'react-icons/lu';
+import { MdPictureAsPdf } from 'react-icons/md';
 import { PiFilePdfLight, PiFileCsvLight } from 'react-icons/pi';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
+import { RenameModal } from '@/components/shared';
+import {
+	AlertDialog,
+	AlertDialogAction,
+	AlertDialogCancel,
+	AlertDialogContent,
+	AlertDialogDescription,
+	AlertDialogFooter,
+	AlertDialogHeader,
+	AlertDialogTitle,
+	AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
 	Card,
 	CardContent,
@@ -40,29 +56,16 @@ import {
 	DropdownMenuSubTrigger,
 	DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import {
-	AlertDialog,
-	AlertDialogAction,
-	AlertDialogCancel,
-	AlertDialogContent,
-	AlertDialogDescription,
-	AlertDialogFooter,
-	AlertDialogHeader,
-	AlertDialogTitle,
-	AlertDialogTrigger,
-} from '@/components/ui/alert-dialog';
-import { useToast } from '@/components/ui/use-toast';
-
-import { Doc, Id } from '../../../../convex/_generated/dataModel';
-import { api } from '../../../../convex/_generated/api';
-import Image from 'next/image';
-import { FileWithStarred } from '../../../../convex/files';
-import { useUser } from '@clerk/nextjs';
-import clsx from 'clsx';
-import { formatUtils } from '@/utils/format';
 import { Input } from '@/components/ui/input';
-import { RenameModal } from '@/components/shared';
+import { useToast } from '@/components/ui/use-toast';
 import { useOnMountEffect, useUserIdentity } from '@/hooks';
+import { formatUtils } from '@/utils/format';
+
+import { api } from '../../../../convex/_generated/api';
+import { Doc, Id } from '../../../../convex/_generated/dataModel';
+import { FileWithStarred } from '../../../../convex/files';
+
+
 
 type FileCardProps = {
 	file: FileWithStarred;

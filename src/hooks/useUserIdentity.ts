@@ -1,5 +1,6 @@
-import { useOrganization, useUser } from '@clerk/nextjs';
 import { useState, useEffect } from 'react';
+
+import { useOrganization, useUser } from '@clerk/nextjs';
 
 export enum UserIdentity {
 	organization = 'organization',

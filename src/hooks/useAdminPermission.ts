@@ -1,5 +1,6 @@
-import { useOrganization } from '@clerk/nextjs';
 import { useEffect } from 'react';
+
+import { useOrganization } from '@clerk/nextjs';
 
 const useAdminPermission = () => {
 	const organization = useOrganization();

@@ -1,18 +1,16 @@
 'use client';
 
 import { useState } from 'react';
+
 import { useOrganization, useUser } from '@clerk/nextjs';
-import { useMutation } from 'convex/react';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useMutation } from 'convex/react';
+import { Loader2, Plus } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
-import { Loader2, Plus } from 'lucide-react';
 
-import { api } from '../../../../convex/_generated/api';
 
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { useToast } from '@/components/ui/use-toast';
 import {
 	Dialog,
 	DialogContent,
@@ -29,8 +27,12 @@ import {
 	FormLabel,
 	FormMessage,
 } from '@/components/ui/form';
-import { fileTypes } from '../../../../convex/schema';
+import { Input } from '@/components/ui/input';
+import { useToast } from '@/components/ui/use-toast';
 import useUserIdentity, { UserIdentity } from '@/hooks/useUserIdentity';
+
+import { api } from '../../../../convex/_generated/api';
+import { fileTypes } from '../../../../convex/schema';
 
 const formSchema = z.object({
 	title: z.string().min(1).max(200),

@@ -1,9 +1,11 @@
 'use client';
 
 import { useState } from 'react';
+
+import { DashboardView } from '../types/views';
+
 import Drawer from './_components/drawer';
 import FileBrowser from './_components/fileBrowser';
-import { DashboardView } from '../types/views';
 
 
 

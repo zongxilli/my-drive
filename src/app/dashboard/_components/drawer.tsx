@@ -1,11 +1,14 @@
 'use client';
 
 import { Dispatch, ReactNode, SetStateAction } from 'react';
-import UploadButton from './uploadButton';
-import { LaptopMinimal, Star, Trash } from 'lucide-react';
+
 import clsx from 'clsx';
-import { useUserIdentity } from '@/hooks';
+import { LaptopMinimal, Star, Trash } from 'lucide-react';
+
 import { DashboardView } from '@/app/types/views';
+import { useUserIdentity } from '@/hooks';
+
+import UploadButton from './uploadButton';
 
 type DrawerProps = {
 	currentView: DashboardView;

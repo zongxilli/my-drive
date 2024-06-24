@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { Baloo_Thambi_2 } from 'next/font/google';
+
 import { Toaster } from '@/components/ui/toaster';
 
 import './globals.css';

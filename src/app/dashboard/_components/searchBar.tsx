@@ -1,8 +1,13 @@
 'use client';
 
+import { Dispatch, SetStateAction } from 'react';
+
 import { zodResolver } from '@hookform/resolvers/zod';
+import { Loader2, SearchIcon } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
+
+import { Button } from '@/components/ui/button';
 import {
 	Form,
 	FormControl,
@@ -11,10 +16,7 @@ import {
 	FormLabel,
 	FormMessage,
 } from '@/components/ui/form';
-import { Loader2, SearchIcon } from 'lucide-react';
-import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Dispatch, SetStateAction } from 'react';
 
 const formSchema = z.object({
 	query: z.string().min(0).max(200),

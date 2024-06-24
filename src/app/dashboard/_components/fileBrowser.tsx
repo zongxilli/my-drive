@@ -1,9 +1,10 @@
 'use client';
 
-import { useOrganization, useUser } from '@clerk/nextjs';
-import { useQuery } from 'convex/react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 
-import Image from 'next/image';
+import { useOrganization, useUser } from '@clerk/nextjs';
+import clsx from 'clsx';
+import { useQuery } from 'convex/react';
 import {
 	AlignJustify,
 	CalendarRange,
@@ -17,33 +18,34 @@ import {
 	UserRoundSearch,
 	X,
 } from 'lucide-react';
-
-import emptyPlaceholder from '../../../../public/emptyPlaceholder.svg';
-import emptySearchResultPlaceholder from '../../../../public/emptySearchResultPlaceholder.svg';
-import emptyStarredPlaceholder from '../../../../public/emptyStarredPlaceholder.svg';
-import emptyTrashPlaceholder from '../../../../public/emptyTrashPlaceholder.svg';
-import notSignedIn from '../../../../public/notSignedInPlaceholder.svg';
-import { useCallback, useEffect, useMemo, useState } from 'react';
-import useDebouncedState from '@/hooks/useDebounceState';
-import { Button } from '@/components/ui/button';
-import SearchBar from '../_components/searchBar';
-import FileCard from '../_components/fileCard';
-import { api } from '../../../../convex/_generated/api';
-import clsx from 'clsx';
-import { DropdownMenu } from '@/components/shared';
+import Image from 'next/image';
 import { IoImages } from 'react-icons/io5';
-import { MdPictureAsPdf } from 'react-icons/md';
 import { LuText } from 'react-icons/lu';
+import { MdPictureAsPdf } from 'react-icons/md';
+
 import {
 	FileTimeFilter,
 	FileTimeFilterUnion,
 	FileType,
 } from '@/app/types/file';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { DropdownMenu } from '@/components/shared';
 import { Option } from '@/components/shared/dropdown';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Button } from '@/components/ui/button';
 import { useUserIdentity } from '@/hooks';
+import useDebouncedState from '@/hooks/useDebounceState';
 import { UserIdentity } from '@/hooks/useUserIdentity';
 import { formatUtils } from '@/utils/format';
+
+import { api } from '../../../../convex/_generated/api';
+import emptyPlaceholder from '../../../../public/emptyPlaceholder.svg';
+import emptySearchResultPlaceholder from '../../../../public/emptySearchResultPlaceholder.svg';
+import emptyStarredPlaceholder from '../../../../public/emptyStarredPlaceholder.svg';
+import emptyTrashPlaceholder from '../../../../public/emptyTrashPlaceholder.svg';
+import notSignedIn from '../../../../public/notSignedInPlaceholder.svg';
+import FileCard from '../_components/fileCard';
+import SearchBar from '../_components/searchBar';
+
 
 type FileBrowserProps = {
 	starredView?: boolean;

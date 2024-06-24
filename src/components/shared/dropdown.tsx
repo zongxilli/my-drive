@@ -1,8 +1,10 @@
 'use client';
 
+import { Dispatch, ReactNode, SetStateAction, useState } from 'react';
+
+import clsx from 'clsx';
 import { Check, ChevronsUpDown, File } from 'lucide-react';
 
-import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import {
 	Command,
@@ -17,8 +19,7 @@ import {
 	PopoverContent,
 	PopoverTrigger,
 } from '@/components/ui/popover';
-import { Dispatch, ReactNode, SetStateAction, useState } from 'react';
-import clsx from 'clsx';
+import { cn } from '@/lib/utils';
 
 export type Option = {
 	value: string;

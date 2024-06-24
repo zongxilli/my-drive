@@ -1,16 +1,18 @@
 'use client';
 
+import React from 'react';
+
 import {
 	OrganizationSwitcher,
 	SignedOut,
 	SignInButton,
 	UserButton,
 } from '@clerk/nextjs';
-import React from 'react';
+import Link from 'next/link';
 import { FaGoogleDrive } from 'react-icons/fa';
 
 import { Button } from '@/components/ui/button';
-import Link from 'next/link';
+
 
 const Header = () => {
 	return (
