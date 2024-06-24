@@ -12,5 +12,5 @@
 
 > Drive view
 
-> ![image](https://github.com/zongxilli/my-drive/assets/77366052/2af8bc65-61a1-4847-8fa7-d02fb1b3cb8c)
+> ![image](https://github.com/zongxilli/my-drive/assets/77366052/621539c4-61f7-4616-b25e-5d2c7b768577)
 
