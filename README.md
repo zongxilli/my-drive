@@ -14,3 +14,11 @@
 
 > ![image](https://github.com/zongxilli/my-drive/assets/77366052/621539c4-61f7-4616-b25e-5d2c7b768577)
 
+Wanna try it yourself?
+- Clone it
+- config clerk & convex, get API keys
+- add `.env.local`, template provided by `.env.local.example`
+- run `yarn install`
+- run `yarn convex dev`
+- open another terminal run `yarn dev`
+- open `localhost:3001`, you are all set!
