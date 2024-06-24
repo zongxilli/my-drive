@@ -151,7 +151,7 @@ export default function FileBrowser({
 	const renderFiles = () => {
 		if (status === UserIdentity.unknown) {
 			return (
-				<div className='h-[70dvh] flex flex-col items-center justify-center gap-4 text-gray-400'>
+				<div className='h-[65dvh] flex flex-col items-center justify-center gap-4 text-gray-400'>
 					<Loader2 className='animate-spin h-20 w-20' />
 					Loading account...
 				</div>
@@ -160,7 +160,7 @@ export default function FileBrowser({
 
 		if (status === UserIdentity.notSignedIn)
 			return (
-				<div className='h-[70dvh] flex flex-col items-center justify-center gap-8'>
+				<div className='h-[65dvh] flex flex-col items-center justify-center gap-8'>
 					<Image
 						priority
 						alt='empty search result placeholder'
@@ -174,7 +174,7 @@ export default function FileBrowser({
 
 		if (isLoading) {
 			return (
-				<div className='h-[70dvh] flex flex-col items-center justify-center gap-4 text-gray-400'>
+				<div className='h-[65dvh] flex flex-col items-center justify-center gap-4 text-gray-400'>
 					<Loader2 className='animate-spin h-20 w-20' />
 					Loading files...
 				</div>
@@ -189,7 +189,7 @@ export default function FileBrowser({
 			if (!searchQuery) label = `No ${fileTypeFilter} file found`;
 
 			return (
-				<div className='h-[70dvh] flex flex-col items-center justify-center gap-8'>
+				<div className='h-[65dvh] flex flex-col items-center justify-center gap-8'>
 					<Image
 						priority
 						alt='empty search result placeholder'
@@ -204,7 +204,7 @@ export default function FileBrowser({
 
 		if (isStarredView && filteredFiles.length === 0) {
 			return (
-				<div className='h-[70dvh] flex flex-col items-center justify-center gap-8'>
+				<div className='h-[65dvh] flex flex-col items-center justify-center gap-8'>
 					<Image
 						priority
 						alt='empty search result placeholder'
@@ -219,7 +219,7 @@ export default function FileBrowser({
 
 		if (isTrashView && filteredFiles.length === 0) {
 			return (
-				<div className='h-[70dvh] flex flex-col items-center justify-center gap-8'>
+				<div className='h-[65dvh] flex flex-col items-center justify-center gap-8'>
 					<Image
 						priority
 						alt='empty search result placeholder'
@@ -234,7 +234,7 @@ export default function FileBrowser({
 
 		if (files && files.length === 0) {
 			return (
-				<div className='h-[70dvh] flex flex-col items-center justify-center gap-8'>
+				<div className='h-[65dvh] flex flex-col items-center justify-center gap-8'>
 					<Image
 						priority
 						alt='empty folder placeholder'
